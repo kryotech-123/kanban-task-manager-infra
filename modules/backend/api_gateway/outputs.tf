@@ -1,0 +1,24 @@
+output "api_id" {
+  description = "The ID of the API Gateway"
+  value       = aws_api_gateway_rest_api.main.id
+}
+output "api_arn" {
+  description = "The ID of the API Gateway"
+  value       = aws_api_gateway_rest_api.main.arn
+}
+output "api_endpoint" {
+  description = "The endpoint of the API Gateway"
+  value       = "${aws_api_gateway_rest_api.main.id}.execute-api.${data.aws_region.current.name}.amazonaws.com"
+}
+
+output "vpc_link_id" {
+  description = "The ID of the VPC link"
+  value       = aws_api_gateway_vpc_link.main.id
+}
+
+output "stage_name" {
+  description = "The name of the deployed stage"
+  value       = var.stage_name
+}
+
+data "aws_region" "current" {}

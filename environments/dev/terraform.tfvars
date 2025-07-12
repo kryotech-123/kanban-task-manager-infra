@@ -5,8 +5,9 @@ tags = {
   Owner       = "dev-team@yourcompany.com"
   CostCenter  = "12345"
   AutoShutdown = "true"  
-  TicketReference = "DEV-1234"  # Link to Jira/ServiceNow ticket
-  DataClassification = "internal"  # Lower classification for dev
+  TicketReference = "DEV-1234"  
+  DataClassification = "internal"  
 }
 application_name = "Kanban-Task-Manager"
 region = "eu-west-1"
+stage_name = "dev"

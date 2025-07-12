@@ -37,12 +37,6 @@ resource "aws_cloudfront_distribution" "frontend" {
     default_ttl            = 3600
     max_ttl                = 86400
 
-    # WAF association
-    # lambda_function_association {
-    #   event_type   = "viewer-request"
-    #   lambda_arn   = var.lambda_edge_arn
-    #   include_body = false
-    # }
   }
 
   restrictions {
@@ -72,16 +66,3 @@ resource "aws_cloudfront_distribution" "frontend" {
 }
 
 
-# resource "aws_cloudfront_cache_invalidation" "invalidation" {
-#   distribution_id = aws_cloudfront_distribution.frontend.id
-
-#   paths {
-#     items = ["/*"]  # Invalidate all files
-#     quantity = 1
-#   }
-
-#   triggers = {
-#     # Force invalidation on every apply
-#     always_revalidate = timestamp()
-#   }
-# }

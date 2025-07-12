@@ -10,6 +10,11 @@ variable "environment" {
   description = "Environment name"
 }
 
+variable "stage_name" {
+  description = "Stage name for the API Gateway"
+  type        = string
+}
+
 variable "application_name" {
   description = "name of application"
 }
