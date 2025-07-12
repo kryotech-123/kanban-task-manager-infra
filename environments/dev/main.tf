@@ -4,6 +4,7 @@
 # This configuration uses an S3 bucket for storing the Terraform state file.
 # Ensure the bucket is pre-created and accessible.
 terraform {
+  
   backend "s3" {
     bucket         = "kanban-task-manager-terraform-state-files"  # Pre-created S3 bucket
     key            = "env:/dev/frontend/terraform.tfstate"
@@ -14,6 +15,9 @@ terraform {
 
 }
 
+# gateway  ---->  alb -- >  ecs
+# gatea/login
+# gateway/register
 
 #========================== PROVIDER CONFIGURATION ==========================
 # This configuration uses the AWS provider to manage resources in the specified region.

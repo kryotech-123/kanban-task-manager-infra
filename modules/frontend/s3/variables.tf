@@ -6,7 +6,7 @@ variable "bucket_name" {
 variable "force_destroy" {
   description = "Whether to allow force destroy of the bucket (useful for development)"
   type        = bool
-  default     = false
+  default     = true # This should be set to false in production environments
 }
 
 variable "cloudfront_origin_access_identity_iam_arn" {
