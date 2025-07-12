@@ -15,9 +15,6 @@ terraform {
 
 }
 
-# gateway  ---->  alb -- >  ecs
-# gatea/login
-# gateway/register
 
 #========================== PROVIDER CONFIGURATION ==========================
 # This configuration uses the AWS provider to manage resources in the specified region.
