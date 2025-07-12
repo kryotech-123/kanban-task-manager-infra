@@ -4,12 +4,14 @@
 # This configuration uses an S3 bucket for storing the Terraform state file.
 # Ensure the bucket is pre-created and accessible.
 terraform {
+
   backend "s3" {
-    bucket         = "kanban-task-manager-terraform-state-files"  # Pre-created S3 bucket
+    bucket         = "kanban-task-manager-terraform-state-files" # Pre-created S3 bucket
     key            = "env:/dev/frontend/terraform.tfstate"
     region         = "eu-west-1"
-    dynamodb_table = "terraform-lock-table-dev"  # DynamoDB table for state locking
+    dynamodb_table = "terraform-lock-table-dev" # DynamoDB table for state locking
     encrypt        = true
+    profile        = "kanban"
   }
 
 }
@@ -17,10 +19,10 @@ terraform {
 
 #========================== PROVIDER CONFIGURATION ==========================
 # This configuration uses the AWS provider to manage resources in the specified region.
-  provider "aws" {
-    region = var.region
-  }
-
+provider "aws" {
+  region  = var.region
+  profile = "kanban"
+}
 
 
 #========================== MODULES ==========================
@@ -29,9 +31,9 @@ terraform {
 
 
 module "frontend_waf" {
-  source          = "../../modules/frontend/waf"
+  source           = "../../modules/frontend/waf"
   application_name = var.application_name
-  tags            = var.tags
+  tags             = var.tags
 }
 
 
@@ -40,20 +42,28 @@ module "random_id" {
 }
 
 module "frontend_s3" {
-  source                                = "../../modules/frontend/s3"
-  bucket_name                           = "${var.bucket_name}-${module.random_id.random_id}"
+  source                                    = "../../modules/frontend/s3"
+  bucket_name                               = "${var.bucket_name}-${module.random_id.random_id}"
   cloudfront_origin_access_identity_iam_arn = module.frontend_cloudfront.origin_access_identity_iam_arn
-  force_destroy                         = true
-  tags                                  = var.tags
+  force_destroy                             = true
+  tags                                      = var.tags
 }
 
 
 
 module "frontend_cloudfront" {
-  source                     = "../../modules/frontend/cloudfront"
-  application_name           = var.application_name
+  source                         = "../../modules/frontend/cloudfront"
+  application_name               = var.application_name
   s3_bucket_regional_domain_name = module.frontend_s3.bucket_regional_domain_name
-  origin_id                 = "${var.application_name}-frontend"
-  web_acl_arn               = module.frontend_waf.web_acl_arn
-  tags                      = var.tags 
+  origin_id                      = "${var.application_name}-frontend"
+  web_acl_arn                    = module.frontend_waf.web_acl_arn
+  tags                           = var.tags
+}
+
+
+
+# ========================= BACKEND INFRASTRUCTURE =================================
+
+module "backend_server" {
+  source = "./backend"
 }

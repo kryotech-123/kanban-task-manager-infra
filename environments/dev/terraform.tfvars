@@ -1,5 +1,5 @@
 environment = "dev"
-bucket_name = "mkanban-task-manager-dev"
+bucket_name = "kanban-task-manager-dev"
 tags = {
   Environment = "dev"
   Owner       = "dev-team@yourcompany.com"
