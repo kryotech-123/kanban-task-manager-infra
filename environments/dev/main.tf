@@ -4,6 +4,12 @@
 # This configuration uses an S3 bucket for storing the Terraform state file.
 # Ensure the bucket is pre-created and accessible.
 terraform {
+   required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 6.0.0" 
+    }
+  }
   backend "s3" {
     bucket         = "kanban-task-manager-terraform-state-files" # Pre-created S3 bucket
     key            = "env:/dev/frontend/terraform.tfstate"
@@ -63,6 +69,23 @@ module "frontend_cloudfront" {
 
 # ========================= BACKEND INFRASTRUCTURE =================================
 
-module "backend_server" {
-  source = "./backend"
+module "backend_networking" {
+  source = "./backend/networking"
+  vpc_name         = "${var.application_name}-vpc"
+  vpc_azs          = var.vpc_azs
+  vpc_cidr         = var.vpc_cidr
+  private_subnets  = var.private_subnets
+  public_subnets   = var.public_subnets
+  database_subnets = var.database_subnets
+}
+
+
+module "ecs_cluster" {
+  source = "./backend/ecs"
+  app_name = var.application_name
+
+  vpc_cidr         = var.vpc_cidr
+  vpc_id = module.backend_networking.vpc_id
+  private_subnets = module.backend_networking.private_subnets 
+  ecr_repository = var.ecr_repository
 }

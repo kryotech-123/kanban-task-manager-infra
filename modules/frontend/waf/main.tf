@@ -1,3 +1,9 @@
+provider "aws" {
+  region = "us-east-1"
+  profile = "kanban"
+  alias  = "global"  
+}
+
 
 
 resource "aws_wafv2_web_acl" "frontend" {
