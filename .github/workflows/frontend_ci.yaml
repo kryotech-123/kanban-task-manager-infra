@@ -14,6 +14,7 @@ permissions:
 env:
   AWS_REGION: "eu-west-1"
   S3_BUCKET: "kanban-task-manager-dev-d1ca7622"
+  LOCAL_SYNC_PATH: "index.html"
 
 jobs:
   integrate:
@@ -52,4 +53,4 @@ jobs:
 
       - name: Sync contents to s3 (dev environment)
         run: |
-          aws s3 sync . s3://${{ env.S3_BUCKET }} --delete
+          aws s3 sync ${{ env.LOCAL_SYNC_PATH }} s3://${{ env.S3_BUCKET }} --delete
