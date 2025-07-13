@@ -37,12 +37,6 @@ resource "aws_cloudfront_distribution" "frontend" {
     default_ttl            = 3600
     max_ttl                = 86400
 
-    # WAF association
-    lambda_function_association {
-      event_type   = "viewer-request"
-      lambda_arn   = var.lambda_edge_arn
-      include_body = false
-    }
   }
 
   restrictions {
@@ -70,3 +64,5 @@ resource "aws_cloudfront_distribution" "frontend" {
 
   tags = var.tags
 }
+
+
