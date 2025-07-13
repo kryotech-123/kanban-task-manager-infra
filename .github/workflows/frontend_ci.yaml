@@ -1,3 +1,5 @@
+name: Deploy index.html to s3
+
 on:
   push:
     branches: [dev]
