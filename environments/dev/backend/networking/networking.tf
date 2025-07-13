@@ -31,6 +31,12 @@ variable "application_name" {
   type        = string  
   
 }
+
+variable "region" {
+  type        = string
+  description = "AWS region where the resources will be deployed"
+  
+}
 # ========================= MODULE FOR VPC =================================
 # This module creates a VPC with the specified CIDR block and subnets.
 module "kanban_vpc" {
@@ -42,6 +48,7 @@ module "kanban_vpc" {
   public_subnets   = var.public_subnets
   database_subnets = var.database_subnets
   application_name = var.application_name
+  region = var.region
 }
 
 

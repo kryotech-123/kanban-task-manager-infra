@@ -6,7 +6,6 @@ variable "api_name" {
 variable "stage_name" {
   description = "The name of the API Gateway stage"
   type        = string
-  default     = "dev"
 }
 
 variable "vpc_endpoint_id" {
@@ -29,6 +28,18 @@ variable "allowed_origins" {
   type        = list(string)
   default     = ["*"]
 }
+variable "region" {
+  description = "AWS region where the API Gateway is deployed"
+  type        = string
+  
+}
+
+variable "tags" {
+  description = "Tags to apply to the API Gateway resources"
+  type        = map(string)
+  default     = {}
+  
+}
 
 variable "allowed_methods" {
   description = "List of allowed HTTP methods for CORS"
@@ -41,3 +52,4 @@ variable "allowed_headers" {
   type        = list(string)
   default     = ["*"]
 }
+

@@ -2,43 +2,13 @@ resource "aws_ecs_cluster" "cluster" {
   name = "${var.app_name}-cluster"
 }
 
+# NLB (Private)
 
-# ALB (Private)
-# ALB Security Group
-resource "aws_security_group" "alb" {
-  name        = "${var.app_name}-alb-sg-${var.environment}"
-  description = "Security group for internal ALB"
-  vpc_id      = var.vpc_id
-
-  ingress {
-    description = "Allow HTTP from within VPC"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = merge(
-    var.tags,
-    {
-      Name = "${var.app_name}-alb-sg"
-    }
-  )
-}
-
-# Application Load Balancer
+# Network Load Balancer
 resource "aws_lb" "private" {
-  name               = "${var.app_name}-alb-${var.environment}"
+  name               = "${var.app_name}-nlb-${var.environment}"
   internal           = true
-  load_balancer_type = "application"
-  security_groups    = [aws_security_group.alb.id]
+  load_balancer_type = "network"
   subnets            = var.private_subnets
 
   enable_deletion_protection = false
@@ -47,54 +17,48 @@ resource "aws_lb" "private" {
     var.tags,
     {
       "Terraform" = "true"
-      "ALB-Type"  = "internal"
+      "NLB-Type"  = "internal"
     }
   )
 }
 
-# Target Group
+# Target Group for NLB
 resource "aws_lb_target_group" "ecs" {
   name_prefix = "tg-"
   port        = var.container_port
-  protocol    = "HTTP"
+  protocol    = "TCP"
   vpc_id      = var.vpc_id
   target_type = "ip"
 
   deregistration_delay = 30
-  lifecycle {
-    create_before_destroy = true
-  }
-
+  
+  # Health check for TCP (simpler than HTTP for NLB)
   health_check {
     enabled             = true
     interval            = 30
-    path                = "/health"
+    protocol            = "TCP"
     healthy_threshold   = 3
     unhealthy_threshold = 3
-    timeout             = 6
-    matcher             = "200-399"
   }
 
-  stickiness {
-    type    = "lb_cookie"
-    enabled = false
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
-# HTTP Listener
-resource "aws_lb_listener" "http" {
+# TCP Listener (replaces HTTP listener)
+resource "aws_lb_listener" "tcp" {
   load_balancer_arn = aws_lb.private.arn
-  port              = 80
-  protocol          = "HTTP"
+  port              = var.container_port
+  protocol          = "TCP"
 
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.ecs.arn
   }
 }
-# Security Groups
 
-
+# Security Groups for Fargate Tasks
 module "fargate_sg" {
   source  = "terraform-aws-modules/security-group/aws"
 
@@ -102,17 +66,19 @@ module "fargate_sg" {
   description = "Security group for Fargate tasks"
   vpc_id      = var.vpc_id
 
-  ingress_with_source_security_group_id = [
+  # Allow traffic from NLB (NLB doesn't use security groups, so we allow from VPC CIDR)
+  ingress_with_cidr_blocks = [
     {
-      rule                     = "http-80-tcp"
-      source_security_group_id = aws_security_group.alb.id
-      description              = "Allow HTTP from ALB"
+      rule        = "http-80-tcp"
+      cidr_blocks = var.vpc_cidr
+      description = "Allow TCP from VPC (NLB traffic)"
     }
   ]
+  
   egress_rules = ["all-all"]
 }
 
-# Task Definition
+# Task Definition (unchanged)
 resource "aws_ecs_task_definition" "app" {
   family                   = "${var.app_name}-task"
   network_mode             = "awsvpc"
@@ -138,10 +104,30 @@ resource "aws_ecs_task_definition" "app" {
         "awslogs-stream-prefix" = "ecs"
       }
     }
+    environment = [
+      {
+        name  = "DB_HOST"
+        value = var.db_host
+      },
+      {
+        name  = "DB_NAME"
+        value = var.db_name
+      },
+      {
+        name  = "DB_USER"
+        value = var.db_user
+      },
+      {
+        name  = "DB_PASS"
+        value = var.db_password
+      }
+
+    ]
   }])
+  
 }
 
-# ECS Service
+# ECS Service (updated to use NLB)
 resource "aws_ecs_service" "app" {
   name            = "${var.app_name}-service"
   cluster         = aws_ecs_cluster.cluster.id
@@ -161,12 +147,10 @@ resource "aws_ecs_service" "app" {
     container_port   = var.container_port
   }
 
-  depends_on = [aws_lb.private, aws_lb_listener.http]
+  depends_on = [aws_lb.private, aws_lb_listener.tcp]
 }
 
-
-
-# Auto Scaling
+# Auto Scaling (unchanged)
 resource "aws_appautoscaling_target" "ecs_target" {
   max_capacity       = 10
   min_capacity       = var.desired_count
@@ -175,7 +159,6 @@ resource "aws_appautoscaling_target" "ecs_target" {
   service_namespace  = "ecs"
 }
 
-# CPU-based scaling (example)
 resource "aws_appautoscaling_policy" "ecs_cpu_policy" {
   name               = "${var.app_name}-cpu-scaling"
   policy_type        = "TargetTrackingScaling"
@@ -191,7 +174,7 @@ resource "aws_appautoscaling_policy" "ecs_cpu_policy" {
   }
 }
 
-# IAM Roles
+# IAM Roles (unchanged)
 resource "aws_iam_role" "ecs_task_execution_role" {
   name = "${var.app_name}-ecs-task-execution-role"
 
@@ -227,7 +210,7 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-# CloudWatch Logs
+# CloudWatch Logs (unchanged)
 resource "aws_cloudwatch_log_group" "ecs" {
   name              = "/ecs/${var.app_name}-task"
   retention_in_days = 7

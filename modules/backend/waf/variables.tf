@@ -1,7 +1,6 @@
 variable "name_prefix" {
   description = "Prefix for WAF resources"
   type        = string
-  default     = "api-gateway"
 }
 
 variable "resource_arn" {

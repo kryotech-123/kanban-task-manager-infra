@@ -46,7 +46,7 @@ module "database" {
     database_subnet_group_name = var.database_subnet_group_name
     name_prefix = var.name_prefix
     security_group_ids = var.security_group_ids 
-    subnet_ids = var.subnet_ids
+    subnet_ids = var.subnet_ids 
     kms_key_arn = var.kms_key_arn
   
 }

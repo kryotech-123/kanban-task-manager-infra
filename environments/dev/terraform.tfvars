@@ -16,10 +16,10 @@ vpc_cidr         = "10.0.0.0/16"
 private_subnets  = ["10.0.1.0/24", "10.0.2.0/24"]
 public_subnets   = ["10.0.101.0/24", "10.0.102.0/24"]
 database_subnets = ["10.0.201.0/24", "10.0.202.0/24"]
-kms_key_arn      = "arn:aws:kms:eu-west-1:084375583047:key/mrk-48d7d0c178c3492dbfb2e345ea8f9166" 
+kms_key_arn      = "arn:aws:kms:eu-west-1:084375583047:key/mrk-48d7d0c178c3492dbfb2e345ea8f9166"
 
-db_name = "value"
-db_username = "kanban_user" 
-db_password = "Admin1234!" # Ensure this is stored securely and not hardcoded in production
-ecr_repository = "kanban-task-manager-backend-repo"
-api_gateway_arn = "arn:aws:apigateway:eu-west-1::restapis/your-api-id/stages/dev"
+db_name         = "postgres"
+db_user     = "kanban_user"
+db_password     = "Admin1234!" # Ensure this is stored securely and not hardcoded in production
+ecr_repository  = "realamponsah/lampstackphp"
+api_gateway_arn = "arn:aws:apigateway:eu-west-1::restapis/your-api-id/stages/dev" # nonexisten api gateway, waiting for vpc endpoint to be created

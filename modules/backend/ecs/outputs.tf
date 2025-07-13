@@ -3,10 +3,17 @@ output "cluster_name" {
   value       = aws_ecs_cluster.cluster.name
 }
 
-output "alb_dns_name" {
+output "load_balancer_dns" {
   description = "ALB DNS name"
   value       = aws_lb.private.dns_name
 }
+
+output "load_balancer_arn" {
+  description = "ALB ARN"
+  value       = aws_lb.private.arn
+  
+}
+
 output "cluster_id" {
   description = "ECS cluster ID"
   value       = aws_ecs_cluster.cluster.id

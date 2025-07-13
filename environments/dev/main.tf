@@ -25,8 +25,8 @@ terraform {
 #========================== PROVIDER CONFIGURATION ==========================
 # This configuration uses the AWS provider to manage resources in the specified region.
 provider "aws" {
-  region = var.region
-  profile        = "kanban"
+  region  = var.region
+  profile = "kanban"
 
 }
 
@@ -73,30 +73,34 @@ module "frontend_cloudfront" {
 module "backend_networking" {
   source           = "../../modules/backend/networking"
   vpc_name         = "${var.application_name}-vpc"
-  application_name = var.application_name 
+  application_name = var.application_name
   vpc_azs          = var.vpc_azs
   vpc_cidr         = var.vpc_cidr
   private_subnets  = var.private_subnets
   public_subnets   = var.public_subnets
   database_subnets = var.database_subnets
+  region           = var.region
 }
 
 
 module "ecs_cluster" {
-  source   = "./backend/ecs"
+  source   = "../../modules/backend/ecs"
   app_name = var.application_name
-
+  db_host = module.database.db_instance_endpoint
+  db_password             = var.db_password
+  db_name = var.db_name
   vpc_cidr        = var.vpc_cidr
   vpc_id          = module.backend_networking.vpc_id
   private_subnets = module.backend_networking.private_subnets
   ecr_repository  = var.ecr_repository
+  db_user = var.db_user
 }
 
 module "waf" {
-  source          = "./backend/waf"
-  api_gateway_arn = var.api_gateway_arn
+  source = "../../modules/backend/waf" 
+  resource_arn = module.api_gateway.api_arn
+  name_prefix = var.application_name
 }
-
 module "ecr_repository" {
   source          = "./backend/ecr"
   repository_name = "${var.application_name}-ecr-repo"
@@ -104,13 +108,25 @@ module "ecr_repository" {
 }
 
 module "database" {
-  source                  = "./backend/database"
-  db_username             = var.db_username 
-  db_password             = var.db_password
-  database_subnet_group_name = module.backend_networking.database_subnet_group_name
-  name_prefix = "${var.application_name}-db"
-  security_group_ids = [module.backend_networking.database_security_group_id]
-  subnet_ids = module.backend_networking.database_subnets 
-  kms_key_arn = var.kms_key_arn 
-  
+     source = "../../modules/backend/database"
+    db_username             = var.db_user
+    db_password             = var.db_password
+    database_subnet_group_name = module.backend_networking.database_subnet_group_name
+    name_prefix = var.application_name
+    db_name = var.db_name
+    security_group_ids = [module.backend_networking.database_security_group_id]
+    subnet_ids = module.backend_networking.database_subnets 
+    kms_key_arn = var.kms_key_arn
+}
+
+
+module "api_gateway" {
+  source            = "../../modules/backend/api_gateway"
+  load_balancer_arn = module.ecs_cluster.load_balancer_arn
+  load_balancer_dns = module.ecs_cluster.load_balancer_dns
+  stage_name        = var.stage_name
+  region = var.region
+  api_name          = "${var.application_name}-api"
+  vpc_endpoint_id   = module.backend_networking.vpc_endpoint
+  tags = var.tags
 }

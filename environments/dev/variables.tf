@@ -63,7 +63,7 @@ variable "db_name" {
   description = "Name of the database"
   type        = string
 }
-variable "db_username" {
+variable "db_user" {
   description = "Master username for the database"
   type        = string
   default     = "postgres"
@@ -73,6 +73,27 @@ variable "db_password" {
   type        = string
   sensitive   = true
 }
+
+
+
+#========================================= API GATEWAY VPC ENDPOINT =========================================================
+
+# variable "vpc_endpoint_id" {
+#   description = "VPC endpoint ID for API Gateway"
+#   type        = string
+
+# }
+# variable "load_balancer_arn" {
+#   description = "ARN of the load balancer for API Gateway"
+#   type        = string
+
+# }
+
+# variable "load_balancer_dns" {
+#   description = "DNS of the load balancer for API Gateway"
+#   type        = string
+
+# }
 
 # ============================================ General config ========================================
 variable "application_name" {
@@ -91,3 +112,5 @@ variable "region" {
   description = "AWS region for the resources"
   type        = string
 }
+
+

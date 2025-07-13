@@ -29,6 +29,26 @@ variable "fargate_cpu" {
   type        = number
   default     = 256
 }
+variable "db_host" {
+  description = "Database host for the ECS tasks"
+  type        = string
+}
+
+variable "db_password" {
+  description = "value for the database password for the ECS tasks"
+  type        = string
+}
+
+variable "db_user" {
+  description = "value for the database username for the ECS tasks"
+  type        = string  
+  
+}
+
+variable "db_name" {
+  description = "Database name for the ECS tasks"
+  type        = string
+}
 
 variable "fargate_memory" {
   description = "Fargate memory (MB)"
