@@ -14,7 +14,7 @@ permissions:
 env:
   AWS_REGION: "eu-west-1"
   S3_BUCKET: "kanban-task-manager-dev-d1ca7622"
-  LOCAL_SYNC_PATH: "index.html"
+  LOCAL_SYNC_PATH: "build/"
 
 jobs:
   integrate:
