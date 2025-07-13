@@ -26,7 +26,11 @@ variable "database_subnets" {
   description = "Cidr defininition for database subnets"
 }
 
-
+variable "application_name" {
+  description = "Name of the application"
+  type        = string  
+  
+}
 # ========================= MODULE FOR VPC =================================
 # This module creates a VPC with the specified CIDR block and subnets.
 module "kanban_vpc" {
@@ -37,6 +41,7 @@ module "kanban_vpc" {
   private_subnets  = var.private_subnets
   public_subnets   = var.public_subnets
   database_subnets = var.database_subnets
+  application_name = var.application_name
 }
 
 
@@ -46,13 +51,26 @@ module "kanban_vpc" {
 
 # outputs
 output "vpc_id" {
-  value = module.kanban_vpc.vpc_id
+  value       = module.kanban_vpc.vpc_id
+  description = "vpc id of kanban vpc"
 }
 
 output "private_subnets" {
-  value = module.kanban_vpc.private_subnets
+  value       = module.kanban_vpc.private_subnets
+  description = "list of private subnets id"
 }
 
 output "database_subnets" {
-  value = module.kanban_vpc.database_subnets
+  value       = module.kanban_vpc.database_subnets
+  description = "list of database subnets id"
+}
+
+output "database_subnet_group_name" {
+  description = "Name of the database subnet group"
+  value       = module.kanban_vpc.database_subnet_group_name
+}
+output "database_security_group_id" {
+  description = "ID of the database security group"
+  value       = aws_security_group.database_security_group.id
+  
 }

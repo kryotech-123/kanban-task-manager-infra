@@ -34,8 +34,8 @@ variable "vpc_cidr" {
 module "ecs_cluster" {
   source  = "../../../../modules/backend/ecs"
   vpc_id = var.vpc_id
-  private_subnets = var.private_subnets
+  private_subnets = var.private_subnets 
   app_name = var.app_name
   ecr_repository = var.ecr_repository
-  vpc_cidr = var.vpc_cidr
+  vpc_cidr = var.vpc_cidr 
 }

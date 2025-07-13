@@ -4,10 +4,10 @@
 # This configuration uses an S3 bucket for storing the Terraform state file.
 # Ensure the bucket is pre-created and accessible.
 terraform {
-   required_providers {
+  required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = ">= 6.0.0" 
+      version = ">= 6.0.0"
     }
   }
   backend "s3" {
@@ -25,8 +25,9 @@ terraform {
 #========================== PROVIDER CONFIGURATION ==========================
 # This configuration uses the AWS provider to manage resources in the specified region.
 provider "aws" {
-  region  = var.region
-  profile = "kanban"
+  region = var.region
+  profile        = "kanban"
+
 }
 
 
@@ -70,8 +71,9 @@ module "frontend_cloudfront" {
 # ========================= BACKEND INFRASTRUCTURE =================================
 
 module "backend_networking" {
-  source = "./backend/networking"
+  source           = "../../modules/backend/networking"
   vpc_name         = "${var.application_name}-vpc"
+  application_name = var.application_name 
   vpc_azs          = var.vpc_azs
   vpc_cidr         = var.vpc_cidr
   private_subnets  = var.private_subnets
@@ -81,11 +83,34 @@ module "backend_networking" {
 
 
 module "ecs_cluster" {
-  source = "./backend/ecs"
+  source   = "./backend/ecs"
   app_name = var.application_name
 
-  vpc_cidr         = var.vpc_cidr
-  vpc_id = module.backend_networking.vpc_id
-  private_subnets = module.backend_networking.private_subnets 
-  ecr_repository = var.ecr_repository
+  vpc_cidr        = var.vpc_cidr
+  vpc_id          = module.backend_networking.vpc_id
+  private_subnets = module.backend_networking.private_subnets
+  ecr_repository  = var.ecr_repository
+}
+
+module "waf" {
+  source          = "./backend/waf"
+  api_gateway_arn = var.api_gateway_arn
+}
+
+module "ecr_repository" {
+  source          = "./backend/ecr"
+  repository_name = "${var.application_name}-ecr-repo"
+  kms_key_arn     = var.kms_key_arn
+}
+
+module "database" {
+  source                  = "./backend/database"
+  db_username             = var.db_username 
+  db_password             = var.db_password
+  database_subnet_group_name = module.backend_networking.database_subnet_group_name
+  name_prefix = "${var.application_name}-db"
+  security_group_ids = [module.backend_networking.database_security_group_id]
+  subnet_ids = module.backend_networking.database_subnets 
+  kms_key_arn = var.kms_key_arn 
+  
 }
