@@ -1,0 +1,53 @@
+on:
+  push:
+    branches: [dev]
+    paths:
+      - "index.html"
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: "eu-west-1"
+  S3_BUCKET: kanban-task-manager-dev-d1ca7622"
+
+jobs:
+  integrate:
+    name: Run tests and deploy to dev environment
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure angular environment
+        run: |
+          echo "Configuring Angular environment"
+
+      - name: Run tests on code
+        run: |
+          echo "Running Tests"
+
+      - name: Run build on code
+        run: |
+          echo "Running build..."
+
+  deploy:
+    name: Deploy to aws dev environment
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: configure aws environment
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.IAMROLE_GITHUB }}
+          role-session-name: GitHub-Action-Role
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Sync contents to s3 (dev environment)
+        run: |
+          aws s3 sync . s3://${{ env.S3BUCKET }} --delete
