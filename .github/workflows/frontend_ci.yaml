@@ -11,7 +11,7 @@ permissions:
 
 env:
   AWS_REGION: "eu-west-1"
-  S3_BUCKET: kanban-task-manager-dev-d1ca7622"
+  S3_BUCKET: "kanban-task-manager-dev-d1ca7622"
 
 jobs:
   integrate:
