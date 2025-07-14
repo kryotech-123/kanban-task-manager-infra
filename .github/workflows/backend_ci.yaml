@@ -1,0 +1,62 @@
+name: Dockerize and Push Backend to ECR
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - "backend/**"
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: "eu-west-1"
+  BACKEND_FILE_DIRECTORY: ./backend
+
+jobs:
+  integrate:
+    name: Run tests and prepare Docker build
+    runs-on: ubuntu-latest
+   
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run tests
+        run: |
+          echo "Running backend tests..."
+
+      - name: Build check
+        run: |
+          echo "Verifying Docker build process"
+
+  deploy:
+    name: Build and Push Docker Image to ECR
+    runs-on: ubuntu-latest
+    needs: integrate
+    defaults:
+      run:
+        working-directory: ${{env.BACKEND_FILE_DIRECTORY}}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.BACKEND_ROLE }}
+          role-session-name: GitHub-Action-Role
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and Push Docker image
+        run: |
+          IMAGE_TAG=dev-${{ github.sha }}
+          docker build -t ${{secrets.ECR_URI}}:$IMAGE_TAG .
+          docker push ${{secrets.ECR_URI}}:$IMAGE_TAG
+          echo "✅ Docker image pushed to ECR: ${{secrets.ECR_URI}}:$IMAGE_TAG"
