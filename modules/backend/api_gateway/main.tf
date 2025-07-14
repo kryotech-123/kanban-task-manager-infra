@@ -18,6 +18,9 @@ resource "aws_api_gateway_method" "proxy" {
   resource_id   = aws_api_gateway_resource.proxy.id
   http_method   = "ANY"
   authorization = "NONE"
+    request_parameters = {
+    "method.request.path.proxy" = true
+  }
 }
 
 resource "aws_api_gateway_integration" "proxy" {
@@ -27,7 +30,7 @@ resource "aws_api_gateway_integration" "proxy" {
 
   type                    = "HTTP_PROXY"
   integration_http_method = "ANY"
-  uri                     = "http://${var.load_balancer_dns}"
+  uri                     = "http://${var.load_balancer_dns}/{proxy}"
 
   connection_type = "VPC_LINK"
   connection_id   = aws_api_gateway_vpc_link.main.id
