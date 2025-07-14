@@ -1,6 +1,5 @@
 environment = "dev"
-# bucket_name = "kanban-task-manager-dev"
-bucket_name = "terraform-state-kanban-dev"
+bucket_name = "kanban-task-manager-dev"
 tags = {
   Environment        = "dev"
   Owner              = "dev-team@kanban-taskmanager.com"

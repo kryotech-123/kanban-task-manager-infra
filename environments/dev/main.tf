@@ -11,7 +11,7 @@ terraform {
     }
   }
   backend "s3" {
-    bucket         = "terraform-state-kanban-dev" 
+    bucket         = "terraform-state-kanban-dev"
     key            = "env:/dev/kanban-task-manager/terraform.tfstate"
     region         = "eu-west-1"
     dynamodb_table = "terraform-lock-table-dev" # DynamoDB table for state locking
@@ -102,7 +102,7 @@ module "waf" {
   name_prefix  = var.application_name
 }
 module "ecr_repository" {
-  source          = "./backend/ecr"
+  source          = "../../modules/backend/ecr"
   repository_name = "${var.application_name}-ecr-repo"
   kms_key_arn     = var.kms_key_arn
 }
@@ -130,3 +130,4 @@ module "api_gateway" {
   vpc_endpoint_id   = module.backend_networking.vpc_endpoint
   tags              = var.tags
 }
+
