@@ -1,8 +1,9 @@
 environment = "dev"
-bucket_name = "kanban-task-manager-dev"
+# bucket_name = "kanban-task-manager-dev"
+bucket_name = "terraform-state-kanban-dev"
 tags = {
   Environment        = "dev"
-  Owner              = "dev-team@yourcompany.com"
+  Owner              = "dev-team@kanban-taskmanager.com"
   CostCenter         = "12345"
   AutoShutdown       = "true"
   TicketReference    = "DEV-1234"
@@ -16,10 +17,9 @@ vpc_cidr         = "10.0.0.0/16"
 private_subnets  = ["10.0.1.0/24", "10.0.2.0/24"]
 public_subnets   = ["10.0.101.0/24", "10.0.102.0/24"]
 database_subnets = ["10.0.201.0/24", "10.0.202.0/24"]
-kms_key_arn      = "arn:aws:kms:eu-west-1:084375583047:key/mrk-48d7d0c178c3492dbfb2e345ea8f9166"
+kms_key_arn      = "arn:aws:kms:eu-west-1:682033471539:key/mrk-104cb66de96d45e5a308e3928ef9d459"
 
-db_name         = "postgres"
-db_user     = "kanban_user"
-db_password     = "Admin1234!" # Ensure this is stored securely and not hardcoded in production
-ecr_repository  = "realamponsah/lampstackphp"
-api_gateway_arn = "arn:aws:apigateway:eu-west-1::restapis/your-api-id/stages/dev" # nonexisten api gateway, waiting for vpc endpoint to be created
+db_name        = "postgres"
+db_user        = "kanban_user"
+db_password    = "Admin1234!"
+ecr_repository = "realamponsah/lampstackphp"

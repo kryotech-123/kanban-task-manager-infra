@@ -11,8 +11,8 @@ terraform {
     }
   }
   backend "s3" {
-    bucket         = "kanban-task-manager-terraform-state-files" # Pre-created S3 bucket
-    key            = "env:/dev/frontend/terraform.tfstate"
+    bucket         = "terraform-state-kanban-dev" 
+    key            = "env:/dev/kanban-task-manager/terraform.tfstate"
     region         = "eu-west-1"
     dynamodb_table = "terraform-lock-table-dev" # DynamoDB table for state locking
     encrypt        = true
@@ -84,22 +84,22 @@ module "backend_networking" {
 
 
 module "ecs_cluster" {
-  source   = "../../modules/backend/ecs"
-  app_name = var.application_name
-  db_host = module.database.db_instance_endpoint
-  db_password             = var.db_password
-  db_name = var.db_name
+  source          = "../../modules/backend/ecs"
+  app_name        = var.application_name
+  db_host         = module.database.db_instance_endpoint
+  db_password     = var.db_password
+  db_name         = var.db_name
   vpc_cidr        = var.vpc_cidr
   vpc_id          = module.backend_networking.vpc_id
   private_subnets = module.backend_networking.private_subnets
   ecr_repository  = var.ecr_repository
-  db_user = var.db_user
+  db_user         = var.db_user
 }
 
 module "waf" {
-  source = "../../modules/backend/waf" 
+  source       = "../../modules/backend/waf"
   resource_arn = module.api_gateway.api_arn
-  name_prefix = var.application_name
+  name_prefix  = var.application_name
 }
 module "ecr_repository" {
   source          = "./backend/ecr"
@@ -108,15 +108,15 @@ module "ecr_repository" {
 }
 
 module "database" {
-     source = "../../modules/backend/database"
-    db_username             = var.db_user
-    db_password             = var.db_password
-    database_subnet_group_name = module.backend_networking.database_subnet_group_name
-    name_prefix = var.application_name
-    db_name = var.db_name
-    security_group_ids = [module.backend_networking.database_security_group_id]
-    subnet_ids = module.backend_networking.database_subnets 
-    kms_key_arn = var.kms_key_arn
+  source                     = "../../modules/backend/database"
+  db_username                = var.db_user
+  db_password                = var.db_password
+  database_subnet_group_name = module.backend_networking.database_subnet_group_name
+  name_prefix                = var.application_name
+  db_name                    = var.db_name
+  security_group_ids         = [module.backend_networking.database_security_group_id]
+  subnet_ids                 = module.backend_networking.database_subnets
+  kms_key_arn                = var.kms_key_arn
 }
 
 
@@ -125,8 +125,8 @@ module "api_gateway" {
   load_balancer_arn = module.ecs_cluster.load_balancer_arn
   load_balancer_dns = module.ecs_cluster.load_balancer_dns
   stage_name        = var.stage_name
-  region = var.region
+  region            = var.region
   api_name          = "${var.application_name}-api"
   vpc_endpoint_id   = module.backend_networking.vpc_endpoint
-  tags = var.tags
+  tags              = var.tags
 }

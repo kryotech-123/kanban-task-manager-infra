@@ -51,11 +51,6 @@ variable "ecr_repository" {
 
 
 
-# ================================ API GATEWAY ===================================================
-variable "api_gateway_arn" {
-  description = "arn of api gateway"
-  type        = string
-}
 
 
 # ================================================== DATABASE =========================================================
@@ -74,26 +69,6 @@ variable "db_password" {
   sensitive   = true
 }
 
-
-
-#========================================= API GATEWAY VPC ENDPOINT =========================================================
-
-# variable "vpc_endpoint_id" {
-#   description = "VPC endpoint ID for API Gateway"
-#   type        = string
-
-# }
-# variable "load_balancer_arn" {
-#   description = "ARN of the load balancer for API Gateway"
-#   type        = string
-
-# }
-
-# variable "load_balancer_dns" {
-#   description = "DNS of the load balancer for API Gateway"
-#   type        = string
-
-# }
 
 # ============================================ General config ========================================
 variable "application_name" {
