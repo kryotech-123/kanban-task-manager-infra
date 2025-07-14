@@ -10,4 +10,3 @@ crash.log
 override.tf
 override.tf.json
 # Include local override files
-index.html
