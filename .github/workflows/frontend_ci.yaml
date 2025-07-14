@@ -4,7 +4,7 @@ on:
   push:
     branches: [dev]
     paths:
-      - "index.html"
+      - "build/"
   workflow_dispatch:
 
 permissions:
