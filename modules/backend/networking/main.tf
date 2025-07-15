@@ -47,7 +47,30 @@ resource "aws_security_group" "database_security_group" {
     from_port   = 5432
     to_port     = 5432
     protocol    = "tcp"
-    cidr_blocks = ["10.0.0.0/16"]
+    cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
+    description = "Allow inbound traffic from private subnets"
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow all outbound traffic"
+  
+}
+}
+
+resource "aws_security_group" "mongo_security_group" {
+  name        = "${var.application_name}-mongo-db-sg"
+  description = "Security group for the mongo database"
+  vpc_id      = module.kanban_vpc.vpc_id
+
+  ingress {
+    from_port   = 27017
+    to_port     = 27017
+    protocol    = "tcp"
+    cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
     description = "Allow inbound traffic from private subnets"
   }
 

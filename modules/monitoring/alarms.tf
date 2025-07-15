@@ -70,7 +70,7 @@ resource "aws_cloudwatch_metric_alarm" "rds_free_storage_low" {
 
 # NLB Alarms (replacing ALB alarms)
 resource "aws_cloudwatch_metric_alarm" "nlb_unhealthy_hosts" {
-  count               = try(var.resource_arns.nlb, null) != null && try(var.resource_arns.nlb_target_group, null) != null ? 1 : 0
+  count               = 1
   alarm_name          = "${var.environment}-nlb-unhealthy-hosts"
   comparison_operator = "LessThanThreshold"
   evaluation_periods  = "3"
@@ -84,7 +84,7 @@ resource "aws_cloudwatch_metric_alarm" "nlb_unhealthy_hosts" {
   
   dimensions = {
     LoadBalancer =  var.resource_arns.nlb
-    TargetGroup  = try(split("/", var.resource_arns.nlb_target_group)[3], var.resource_arns.nlb_target_group)
+    TargetGroup  =  var.resource_arns.nlb_target_group_blue
   }
 }
 
