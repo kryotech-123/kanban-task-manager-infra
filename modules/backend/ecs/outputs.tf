@@ -10,6 +10,11 @@ output "load_balancer_dns" {
 
 output "load_balancer_arn" {
   description = "ALB ARN"
+  value       = aws_lb.private.arn_suffix
+  
+}
+output "load_balancer_arn_original" {
+  description = "ALB ARN"
   value       = aws_lb.private.arn
   
 }

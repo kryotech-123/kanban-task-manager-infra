@@ -81,3 +81,7 @@ variable "internal_alb" {
   type        = bool
   default     = true
 }
+variable "region" {
+  description = "AWS region for the resources"
+  type        = string
+}

@@ -80,7 +80,7 @@ resource "aws_api_gateway_stage" "main" {
   deployment_id = aws_api_gateway_deployment.main.id
 
   # access_log_settings {
-  #   destination_arn = aws_cloudwatch_log_group.api_gateway_logs.arn
+  #   destination_arn = var.cloudwatch_role_arn
   #   format = jsonencode({
   #     requestId       = "$context.requestId"
   #     ip              = "$context.identity.sourceIp"
@@ -96,7 +96,7 @@ resource "aws_api_gateway_stage" "main" {
   # }
 
   xray_tracing_enabled = true
-  # depends_on = [aws_cloudwatch_log_group.api_gateway]
+  # depends_on = [aws_api_gateway_account.main]
 }
 
 # CORS configuration
@@ -113,75 +113,39 @@ module "cors" {
 }
 
 
+
+
 # ========================= CLOUDWATCH LOGS =========================
 
-# resource "aws_cloudwatch_log_group" "api_gateway" {
-#   name              = "/aws/apigateway/${var.api_name}-${var.stage_name}"
-#   retention_in_days = 30  
-  
-#   tags = merge(
-#     var.tags,
-#     {
-#       Name = "${var.api_name}-api-gateway-logs"
-#     }
-#   )
-# }
 
-
-# resource "aws_iam_role_policy" "api_gateway_logs" {
-#   name = "api-gateway-cloudwatch-logs"
-#   role = aws_iam_role.api_gateway.id
-
-#   policy = jsonencode({
-#     Version = "2012-10-17",
-#     Statement = [{
-#       Effect = "Allow",
-#       Action = [
-#         "logs:CreateLogGroup",
-#         "logs:CreateLogStream",
-#         "logs:DescribeLogGroups",
-#         "logs:DescribeLogStreams",
-#         "logs:PutLogEvents",
-#         "logs:GetLogEvents",
-#         "logs:FilterLogEvents"
-#       ],
-#       Resource = "*"
-#     }]
-#   })
-# }
-
-# # 1. Create IAM Role for API Gateway to assume
 # resource "aws_iam_role" "api_gateway_logging" {
-#   name               = "${var.api_name}-api-gateway-cloudwatch-role"
+
+#    name = "${var.api_name}-api-gateway-cloudwatch-role"
 #   assume_role_policy = jsonencode({
 #     Version = "2012-10-17",
-#     Statement = [
-#       {
-#         Action = "sts:AssumeRole",
-#         Effect = "Allow",
-#         Principal = {
-#           Service = "apigateway.amazonaws.com"
-#         }
+#     Statement = [{
+#       Action = "sts:AssumeRole",
+#       Effect = "Allow",
+#       Principal = {
+#         Service = "apigateway.amazonaws.com"
 #       }
-#     ]
+#     }]
 #   })
-
-#   tags = merge(
-#     var.tags,
-#     {
-#       Name = "${var.api_name}-api-gateway-logs-role"
-#     }
-#   )
+  
 # }
 
-# # 2. Attach the policy we created earlier
 # resource "aws_iam_role_policy_attachment" "api_gateway_logs" {
 #   role       = aws_iam_role.api_gateway_logging.name
-#   policy_arn = aws_iam_role_policy.api_gateway_logs.arn
+#   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
 # }
 
-# # 3. Add permissions for X-Ray if enabled
+# resource "aws_api_gateway_account" "main" {
+#   cloudwatch_role_arn = aws_iam_role.api_gateway_logging.arn
+# }
+
+
 # resource "aws_iam_role_policy_attachment" "xray_write" {
 #   role       = aws_iam_role.api_gateway_logging.name
 #   policy_arn = "arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess"
 # }
+

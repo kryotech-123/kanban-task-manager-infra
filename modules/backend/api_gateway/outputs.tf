@@ -6,7 +6,11 @@ output "api_arn" {
   description = "Full ARN of the API Gateway stage"
   value       = "arn:aws:apigateway:${var.region}::/restapis/${aws_api_gateway_rest_api.main.id}/stages/${aws_api_gateway_stage.main.stage_name}"
 }
-
+output "api_name" {
+  description = "Name of the API Gateway"
+  value       = aws_api_gateway_rest_api.main.name
+  
+}
 output "api_endpoint" {
   description = "The endpoint of the API Gateway"
   # value       = "${aws_api_gateway_rest_api.main.id}.execute-api.${data.aws_region.current.name}.amazonaws.com"

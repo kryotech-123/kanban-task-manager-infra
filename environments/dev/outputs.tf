@@ -14,3 +14,13 @@ output "dev_bucket_name" {
   value       = module.frontend_s3.bucket_name
 }
 
+output "dashboard_url" {
+  description = "URL of the CloudWatch dashboard"
+  value       = module.monitoring.dashboard_url
+  
+}
+
+output "load_balancer_arn" {
+  description = "value of the ALB ARN"
+  value       = module.ecs_cluster.load_balancer_arn
+}

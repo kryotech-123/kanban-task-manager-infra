@@ -34,6 +34,13 @@ variable "region" {
   
 }
 
+variable "cloudwatch_role_arn" {
+  description = "ARN of the IAM role for CloudWatch logging"
+  type        = string
+  default     = null
+  
+}
+
 variable "tags" {
   description = "Tags to apply to the API Gateway resources"
   type        = map(string)

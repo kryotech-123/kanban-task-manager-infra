@@ -8,9 +8,14 @@ output "db_instance_arn" {
   value       = aws_db_instance.this.arn
 }
 
+output "db_instance_id" {
+  description = "The ID of the DB instance"
+  value       = aws_db_instance.this.id
+  
+}
 output "db_instance_name" {
   description = "The database name"
-  value       = aws_db_instance.this.db_name
+  value       = aws_db_instance.this.identifier
 }
 
 output "db_instance_username" {

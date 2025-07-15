@@ -94,6 +94,7 @@ module "ecs_cluster" {
   private_subnets = module.backend_networking.private_subnets
   ecr_repository  = var.ecr_repository
   db_user         = var.db_user
+  region = var.region
 }
 
 module "waf" {
@@ -121,13 +122,41 @@ module "database" {
 
 
 module "api_gateway" {
-  source            = "../../modules/backend/api_gateway"
-  load_balancer_arn = module.ecs_cluster.load_balancer_arn
-  load_balancer_dns = module.ecs_cluster.load_balancer_dns
-  stage_name        = var.stage_name
-  region            = var.region
-  api_name          = "${var.application_name}-api"
-  vpc_endpoint_id   = module.backend_networking.vpc_endpoint
-  tags              = var.tags
+  source              = "../../modules/backend/api_gateway"
+  load_balancer_arn   = module.ecs_cluster.load_balancer_arn_original
+  load_balancer_dns   = module.ecs_cluster.load_balancer_dns
+  stage_name          = var.stage_name
+  region              = var.region
+  api_name            = "${var.application_name}-api"
+  vpc_endpoint_id     = module.backend_networking.vpc_endpoint
+  # cloudwatch_role_arn = module.monitoring.central_log_group_arn
+  tags                = var.tags
 }
 
+
+module "monitoring" {
+  source = "../../modules/monitoring"
+
+  environment = "production"
+  alarm_notification_emails = [
+    "gabriel.anyaele@amalitechtraining.org",
+    "derrick.alberto-darku@amalitechtraining.org",
+    "andy.amponsah@amalitechtraining.org"
+  ]
+  aws_region              = var.region
+  alarm_sns_topic_kms_key = var.kms_key_arn
+  log_retention_days      = 30
+
+  resource_arns = {
+    api_gateway  = module.api_gateway.api_name
+    ecs_cluster  = module.ecs_cluster.cluster_name
+    rds_instance = module.database.db_instance_name
+    nlb          = module.ecs_cluster.load_balancer_arn
+    cloudfront   = module.frontend_cloudfront.distribution_id
+    ecr_repository = module.ecr_repository.name
+    vpc          = module.backend_networking.vpc_id
+    nlb_target_group = module.ecs_cluster.target_group_arn
+    ecs_service = module.ecs_cluster.service_name
+
+  }
+}
