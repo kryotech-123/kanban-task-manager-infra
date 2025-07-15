@@ -24,3 +24,15 @@ output "load_balancer_arn" {
   description = "value of the ALB ARN"
   value       = module.ecs_cluster.load_balancer_arn
 }
+
+output "mongo_cluster_endpoint" {
+  description = "MongoDB cluster endpoint"
+  value       = module.mongo.cluster_endpoint
+  
+}
+
+output "cluster_reader_endpoint" {
+  description = "MongoDB cluster reader endpoint"
+  value       = module.mongo.cluster_reader_endpoint
+  
+}
