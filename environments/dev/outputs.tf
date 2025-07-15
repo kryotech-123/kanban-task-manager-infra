@@ -17,7 +17,7 @@ output "dev_bucket_name" {
 output "dashboard_url" {
   description = "URL of the CloudWatch dashboard"
   value       = module.monitoring.dashboard_url
-  
+
 }
 
 output "load_balancer_arn" {

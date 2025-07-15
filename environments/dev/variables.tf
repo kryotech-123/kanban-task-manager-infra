@@ -89,3 +89,22 @@ variable "region" {
 }
 
 
+
+#========================= MONGO DB =========================================================
+variable "mongo_db_name" {
+  description = "Name of the MongoDB database"
+  type        = string
+}
+
+variable "mongo_db_user" {
+  description = "Master username for MongoDB"
+  type        = string
+  
+}
+
+variable "mongo_db_password" {
+  description = "Master password for MongoDB"
+  type        = string
+  sensitive   = true  
+  
+}
