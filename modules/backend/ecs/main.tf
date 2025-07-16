@@ -181,7 +181,7 @@ resource "aws_ecs_task_definition" "app" {
       }
     }
     environment = [
-      {
+       {
         name  = "DB_HOST"
         value = var.db_host
       },
@@ -196,7 +196,62 @@ resource "aws_ecs_task_definition" "app" {
       {
         name  = "DB_PASS"
         value = var.db_password
+      },
+       {
+        name  = "MONGODB_USER"
+        value = var.mongo_user
+      },
+      {
+        name  = "MONGODB_PASS"
+        value = var.mongo_pass
+      },
+      {
+        name  = "MONGODB_HOST"
+        value = var.mongo_host
+      },
+      {
+        name  = "MONGODB_NAME"
+        value = var.mongo_name
+      },
+        
+       {
+        name  = "JWT_SECRET"
+        value = var.jwt_secret
+      },
+      {
+        name  = "JWT_ACCESS_EXPIRATION"
+        value = var.jwt_expire
+      },
+      {
+        name  = "JWT_REFRESH_EXPIRATION"
+        value = var.jwt_refresh
+      },
+      {
+        name  = "EMAIL_HOST"
+        value = var.email_host
+      },
+       
+       {
+        name  = "EMAIL_PORT"
+        value = var.email_port
+      },
+      {
+        name  = "EMAIL_USERNAME"
+        value = var.email_username
+      },
+      {
+        name  = "EMAIL_PASSWORD"
+        value = var.email_password
+      },
+       {
+        name  = "MONGODB_PORT"
+        value = var.mongo_db_port
+      },
+      {
+        name = "EMAIL_SSL_TRUST"
+        value = var.email_ssl_trust
       }
+     
 
     ]
   }])

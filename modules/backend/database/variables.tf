@@ -19,6 +19,8 @@ variable "security_group_ids" {
   type        = list(string)
 }
 
+
+
 variable "allocated_storage" {
   description = "Initial storage allocation in GB"
   type        = number

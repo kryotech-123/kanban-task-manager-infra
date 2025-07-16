@@ -17,7 +17,7 @@ resource "aws_sns_topic_subscription" "alarm_notifications" {
 
 # API Gateway Alarms (unchanged)
 resource "aws_cloudwatch_metric_alarm" "api_gateway_5xx_errors" {
-  count               = try(var.resource_arns.api_gateway, null) != null ? 1 : 0
+  count               = 1  #try(var.resource_arns.api_gateway, null) != null ? 1 : 0
   alarm_name          = "${var.environment}-api-gateway-5xx-errors"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = "1"
@@ -35,7 +35,7 @@ resource "aws_cloudwatch_metric_alarm" "api_gateway_5xx_errors" {
 
 # RDS Alarms (unchanged)
 resource "aws_cloudwatch_metric_alarm" "rds_cpu_high" {
-  count               = try(var.resource_arns.rds_instance, null) != null ? 1 : 0
+  count               = 1 # try(var.resource_arns.rds_instance, null) != null ? 1 : 0
   alarm_name          = "${var.environment}-rds-cpu-high"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = "3"
@@ -52,7 +52,7 @@ resource "aws_cloudwatch_metric_alarm" "rds_cpu_high" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "rds_free_storage_low" {
-  count               = try(var.resource_arns.rds_instance, null) != null ? 1 : 0
+  count               = 1 #try(var.resource_arns.rds_instance, null) != null ? 1 : 0
   alarm_name          = "${var.environment}-rds-storage-low"
   comparison_operator = "LessThanThreshold"
   evaluation_periods  = "1"
@@ -89,7 +89,7 @@ resource "aws_cloudwatch_metric_alarm" "nlb_unhealthy_hosts" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "nlb_high_tcp_resets" {
-  count               = try(var.resource_arns.nlb, null) != null ? 1 : 0
+  count               = 1 #try(var.resource_arns.nlb, null) != null ? 1 : 0
   alarm_name          = "${var.environment}-nlb-high-tcp-resets"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = "1"
@@ -106,7 +106,7 @@ resource "aws_cloudwatch_metric_alarm" "nlb_high_tcp_resets" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "nlb_high_target_resets" {
-  count               = try(var.resource_arns.nlb, null) != null ? 1 : 0
+  count               = 1
   alarm_name          = "${var.environment}-nlb-high-target-resets"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = "1"
@@ -124,7 +124,7 @@ resource "aws_cloudwatch_metric_alarm" "nlb_high_target_resets" {
 
 # CloudFront Alarms (unchanged)
 resource "aws_cloudwatch_metric_alarm" "cloudfront_5xx_errors" {
-  count               = try(var.resource_arns.cloudfront, null) != null ? 1 : 0
+  count               = 1 #try(var.resource_arns.cloudfront, null) != null ? 1 : 0
   alarm_name          = "${var.environment}-cloudfront-5xx-errors"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = "1"
@@ -142,7 +142,7 @@ resource "aws_cloudwatch_metric_alarm" "cloudfront_5xx_errors" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "cloudfront_cache_hit_rate" {
-  count               = try(var.resource_arns.cloudfront, null) != null ? 1 : 0
+  count               = 1
   alarm_name          = "${var.environment}-cloudfront-low-cache-hit"
   comparison_operator = "LessThanThreshold"
   evaluation_periods  = "3"

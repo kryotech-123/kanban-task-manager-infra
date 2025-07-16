@@ -21,7 +21,22 @@ kms_key_arn      = "arn:aws:kms:eu-west-1:682033471539:key/mrk-104cb66de96d45e5a
 db_name        = "postgres"
 db_user        = "kanban_user"
 db_password    = "Admin1234!"
-ecr_repository = "realamponsah/lampstackphp"
-mongo_db_name = "kanban_mongo_db"
-mongo_db_user = "kanban_mongo_user"
-mongo_db_password = "Admin1234!"
+ecr_repository = "682033471539.dkr.ecr.eu-west-1.amazonaws.com/kanban-task-manager-dev-ecr-repo:c29811bcb4e6a339e782ec2518dda7e1f6238053"
+mongo_name = "kanban_mongo_db"
+mongo_user = "kanban_mongo_user"
+mongo_pass = "Admin1234!"
+jwt_expire = "150000"
+jwt_refresh = "7000"
+jwt_secret = "pHBIznGIiVW1RwrCaSuyM9XL/dLcITxT6PQKcmkUPqQ="
+email_host = "your.smtp.server.com"
+email_port = 587
+email_username = "your-email@domain.com"
+email_password = "some_password"
+email_ssl_trust = "value"
+sender_email = "sender@gmail.com"
+
+
+
+
+
+

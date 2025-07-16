@@ -85,16 +85,29 @@ module "backend_networking" {
 
 module "ecs_cluster" {
   source          = "../../modules/backend/ecs"
-  app_name        = var.application_name
-  db_host         = module.database.db_instance_endpoint
-  db_password     = var.db_password
-  db_name         = var.db_name
+  region          = var.region
   vpc_cidr        = var.vpc_cidr
   vpc_id          = module.backend_networking.vpc_id
   private_subnets = module.backend_networking.private_subnets
   ecr_repository  = var.ecr_repository
   db_user         = var.db_user
-  region          = var.region
+  app_name        = var.application_name
+  db_host         = module.database.db_instance_endpoint
+  db_password     = var.db_password
+  db_name         = var.db_name
+  mongo_host = module.mongo_db.cluster_endpoint
+  mongo_name = var.mongo_name
+  mongo_user = var.mongo_user
+  mongo_pass = var.mongo_pass
+  jwt_secret = var.jwt_secret
+  jwt_expire = var.jwt_expire
+  jwt_refresh = var.jwt_refresh
+  email_host = var.email_host
+  email_port = var.email_port
+  email_username = var.email_username
+  email_password = var.email_password
+  email_ssl_trust = ""
+  sender_email = var.sender_email
 }
 
 module "waf" {
@@ -166,8 +179,8 @@ module "monitoring" {
 module "mongo_db" {
   source = "../../modules/backend/mongo"
   cluster_name = "${var.application_name}-mongo-cluster"
-  mongo_master_username = var.mongo_db_user
-  mongo_master_password = var.mongo_db_password
+  mongo_master_username = var.mongo_user
+  mongo_master_password = var.mongo_pass
   vpc_id = module.backend_networking.vpc_id
   subnet_ids  = module.backend_networking.database_subnets
   mongo_security_group_id = module.backend_networking.mongo_security_group_id

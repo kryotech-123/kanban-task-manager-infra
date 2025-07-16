@@ -47,7 +47,7 @@ resource "aws_security_group" "database_security_group" {
     from_port   = 5432
     to_port     = 5432
     protocol    = "tcp"
-    cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
+    cidr_blocks = [var.vpc_cidr]
     description = "Allow inbound traffic from private subnets"
   }
 
@@ -70,7 +70,7 @@ resource "aws_security_group" "mongo_security_group" {
     from_port   = 27017
     to_port     = 27017
     protocol    = "tcp"
-    cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
+    cidr_blocks = [var.vpc_cidr]
     description = "Allow inbound traffic from private subnets"
   }
 

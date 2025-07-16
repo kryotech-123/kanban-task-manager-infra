@@ -90,21 +90,73 @@ variable "region" {
 
 
 
-#========================= MONGO DB =========================================================
-variable "mongo_db_name" {
-  description = "Name of the MongoDB database"
-  type        = string
+
+
+# ================================== ECS Variables =========================================================
+
+
+variable "mongo_user" {
+  default = "kanban_mongo_user"
 }
 
-variable "mongo_db_user" {
-  description = "Master username for MongoDB"
+variable "mongo_pass" {
+  description = "Master password for MongoDB"
+  type        = string  
+  sensitive = true
+}
+
+
+
+
+variable "mongo_name" {
+  description = "MongoDB name for the ECS tasks"
   type        = string
   
 }
 
-variable "mongo_db_password" {
-  description = "Master password for MongoDB"
+variable "jwt_secret" {
+  description = "JWT secret for the application"
   type        = string
-  sensitive   = true  
+}
+
+variable "jwt_expire" {
+  description = "JWT access token expiration time in seconds"
+  type        = string
+}
+
+variable "jwt_refresh" {
+  description = "JWT refresh token expiration time in seconds"
+  type        = string
+  
+}
+
+
+variable "email_host" {
+  description = "Email host for sending notifications"
+  type        = string  
+  
+}
+variable "email_port" {
+  description = "Email port for sending notifications"
+  type        = string
+}
+variable "email_username" {
+  description = "Email username for sending notifications"
+  type        = string
+} 
+variable "email_password" {
+  description = "Email password for sending notifications"
+  type        = string
+  sensitive   = true
+}
+
+variable "email_ssl_trust" {
+  description = "email ssl trust for sending notifications"
+  type        = string
+}
+
+variable "sender_email" {
+  description = "Sender email address for notifications"
+  type        = string
   
 }
