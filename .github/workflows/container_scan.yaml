@@ -39,7 +39,7 @@ jobs:
           ECR_REPOSITORY_DEV: "realamponsah/springboot"
         run: |
           cd backend
-          sudo docker build -t $$ECR_REPOSITORY_DEV:$IMAGE_TAG .
+          sudo docker build -t $ECR_REPOSITORY_DEV:$IMAGE_TAG .
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY_DEV:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       - name: Scan with Trivy (Critical Vulnerabilities)
