@@ -1,3 +1,5 @@
+# This file contains the outputs for the networking module
+# It exports the necessary information about the VPC, subnets, and security groups created for the backend application
 output "vpc_id" {
   value       = module.kanban_vpc.vpc_id
   description = "vpc id of kanban vpc"
@@ -27,9 +29,4 @@ output "database_security_group_id" {
 output "mongo_security_group_id" {
   description = "ID of the database security group"
   value       = aws_security_group.mongo_security_group.id
-}
-output "vpc_endpoint" {
-  description = "Type of the VPC endpoint for API Gateway"
-  value       = aws_vpc_endpoint.apigw_endpoint.id
-  
 }

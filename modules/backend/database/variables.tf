@@ -1,3 +1,6 @@
+# This file contains the variables for the AWS RDS database instance module
+# It defines the necessary variables for configuring the RDS instance, including its name, storage,
+# instance class, database name, subnet group, security groups, and other settings
 variable "name_prefix" {
   description = "Prefix for all resource names"
   type        = string

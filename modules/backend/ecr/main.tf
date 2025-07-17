@@ -1,3 +1,8 @@
+# This file contains the main configuration for the AWS ECR repository module
+# It sets up an ECR repository for storing Docker images used by the backend application  
+
+
+# It defines the repository name, image tag mutability, encryption settings, and lifecycle policies
 resource "aws_ecr_repository" "this" {
   name                 = var.repository_name
   image_tag_mutability = var.image_tag_mutability
@@ -12,7 +17,12 @@ resource "aws_ecr_repository" "this" {
     scan_on_push = var.scan_on_push
   }
 
-  tags = var.tags
+ tags = merge(
+      var.tags,
+      {
+        Name = "${var.repository_name}-backend-ECR-REPO"
+      }
+    )
 }
 
 resource "aws_ecr_lifecycle_policy" "this" {

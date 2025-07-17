@@ -1,3 +1,5 @@
+# This file contains the outputs for the AWS ECR repository module
+# It exports the necessary information about the ECR repository created for the backend application
 output "arn" {
   description = "ARN of the ECR repository"
   value       = aws_ecr_repository.this.arn

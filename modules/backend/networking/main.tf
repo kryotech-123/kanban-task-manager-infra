@@ -1,3 +1,8 @@
+# This file contains the configuration for the AWS VPC (Virtual Private Cloud)
+# It sets up a VPC for the backend application with public and private subnets, NAT gateways, and security groups
+# The VPC is configured to allow communication between the backend services and the database
+
+# This module uses the Terraform AWS VPC module to create the necessary infrastructure
 module "kanban_vpc" {
   source = "terraform-aws-modules/vpc/aws"
 
@@ -10,34 +15,19 @@ module "kanban_vpc" {
   create_database_subnet_group = true
   enable_nat_gateway           = true
   single_nat_gateway           = true
+  tags = merge(
+      var.tags,
+      {
+        Name = "${var.vpc_name}-VPC"
+      }
+    )
 }
 
-resource "aws_vpc_endpoint" "apigw_endpoint" {
-  vpc_id              = module.kanban_vpc.vpc_id
-  service_name        = "com.amazonaws.${var.region}.execute-api"  # e.g., "com.amazonaws.us-east-1.execute-api"
-  vpc_endpoint_type   = "Interface"
-  private_dns_enabled = true  
-  subnet_ids          = module.kanban_vpc.private_subnets
 
-  security_group_ids = [aws_security_group.apigw_sg.id]
-}
 
-resource "aws_security_group" "apigw_sg" {
-  vpc_id = module.kanban_vpc.vpc_id
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["10.0.0.0/16"]  # Allow only from VPC
-  }
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
+# This file contains the security group configurations for the backend application
+# It defines security groups for the database and MongoDB, allowing specific inbound and outbound traffic
+# The security groups are associated with the VPC created in the networking module
 resource "aws_security_group" "database_security_group" {
   name        = "${var.application_name}-db-sg"
   description = "Security group for the database"

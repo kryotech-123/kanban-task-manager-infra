@@ -1,3 +1,6 @@
+# This file contains the outputs for the AWS RDS database instance module
+# It exports the necessary information about the RDS instance created for the backend application
+
 output "db_instance_endpoint" {
   description = "The connection endpoint"
   value       = aws_db_instance.this.endpoint

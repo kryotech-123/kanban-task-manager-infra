@@ -1,3 +1,7 @@
+# This file contains the variables for the AWS ECR repository module
+# It defines the necessary variables for configuring the ECR repository, including its name, image tag mutability,
+# encryption settings, lifecycle policies, and repository policies
+
 variable "repository_name" {
   description = "Name of the ECR repository"
   type        = string

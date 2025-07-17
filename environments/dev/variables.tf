@@ -101,8 +101,8 @@ variable "mongo_user" {
 
 variable "mongo_pass" {
   description = "Master password for MongoDB"
-  type        = string  
-  sensitive = true
+  type        = string
+  sensitive   = true
 }
 
 
@@ -111,7 +111,7 @@ variable "mongo_pass" {
 variable "mongo_name" {
   description = "MongoDB name for the ECS tasks"
   type        = string
-  
+
 }
 
 variable "jwt_secret" {
@@ -127,14 +127,14 @@ variable "jwt_expire" {
 variable "jwt_refresh" {
   description = "JWT refresh token expiration time in seconds"
   type        = string
-  
+
 }
 
 
 variable "email_host" {
   description = "Email host for sending notifications"
-  type        = string  
-  
+  type        = string
+
 }
 variable "email_port" {
   description = "Email port for sending notifications"
@@ -143,7 +143,7 @@ variable "email_port" {
 variable "email_username" {
   description = "Email username for sending notifications"
   type        = string
-} 
+}
 variable "email_password" {
   description = "Email password for sending notifications"
   type        = string
@@ -158,5 +158,5 @@ variable "email_ssl_trust" {
 variable "sender_email" {
   description = "Sender email address for notifications"
   type        = string
-  
+
 }

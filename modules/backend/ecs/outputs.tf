@@ -1,3 +1,6 @@
+# Outputs for ECS Module
+# This file contains the outputs for the ECS module used by the backend application
+
 output "cluster_name" {
   description = "ECS cluster name"
   value       = aws_ecs_cluster.cluster.name

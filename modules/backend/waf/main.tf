@@ -1,3 +1,10 @@
+# This file contains the configuration for the AWS WAF (Web Application Firewall)
+# It sets up a WAF for the api gateway  to protect against common web exploits and ensure traffic is coming from CloudFront
+# The WAF is configured with managed rule groups and a rate limit rule
+
+# Create a WAF web ACL for the API Gateway
+# This web ACL will be associated with the API Gateway to protect it from web attacks
+# This web ACL will be associated with the CloudFront distribution to protect it from web attacks
 resource "aws_wafv2_web_acl" "main" {
   name        = "${var.name_prefix}-waf"
   description = "WAF for API Gateway with OWASP Top 10 protections"
@@ -7,6 +14,7 @@ resource "aws_wafv2_web_acl" "main" {
     allow {}
   }
 
+# Managed rule groups for common web exploits
   rule {
     name     = "AWS-AWSManagedRulesCommonRuleSet"
     priority = 10
@@ -15,7 +23,7 @@ resource "aws_wafv2_web_acl" "main" {
       count {}
     }
 
-    statement {
+    statement { 
       managed_rule_group_statement {
         name        = "AWSManagedRulesCommonRuleSet"
         vendor_name = "AWS"
@@ -29,6 +37,7 @@ resource "aws_wafv2_web_acl" "main" {
     }
   }
 
+# Managed rule groups for known bad inputs
   rule {
     name     = "AWS-AWSManagedRulesKnownBadInputsRuleSet"
     priority = 20
@@ -51,6 +60,7 @@ resource "aws_wafv2_web_acl" "main" {
     }
   }
 
+# SQL Injection rule group
   rule {
     name     = "AWS-AWSManagedRulesSQLiRuleSet"
     priority = 30
@@ -73,6 +83,8 @@ resource "aws_wafv2_web_acl" "main" {
     }
   }
 
+# Managed rule groups for Linux and Unix systems
+  # These rules are designed to protect against common vulnerabilities in Linux and Unix systems
   rule {
     name     = "AWS-AWSManagedRulesLinuxRuleSet"
     priority = 40
@@ -117,6 +129,8 @@ resource "aws_wafv2_web_acl" "main" {
     }
   }
 
+# Managed rule groups for bot control
+  # These rules are designed to protect against malicious bots and automated traffic
   rule {
     name     = "AWS-AWSManagedRulesBotControlRuleSet"
     priority = 60
@@ -141,6 +155,9 @@ resource "aws_wafv2_web_acl" "main" {
 
 
 
+# Rate limiting rule
+  # This rule limits the number of requests from a single IP address to prevent abuse
+  # The limit is set to 1000 requests per 5 minutes
   rule {
     name     = "RateLimit"
     priority = 80
@@ -165,6 +182,9 @@ resource "aws_wafv2_web_acl" "main" {
 
 
 
+# Verify CloudFront Origin Rule
+  # This rule checks if the request is coming from CloudFront by verifying the presence of a specific header
+  # If the header is not present, the request is blocked
   rule {
         name     = "Verify-CloudFront-Origin"
         priority = 5  # Higher priority than other rules
@@ -206,6 +226,12 @@ resource "aws_wafv2_web_acl" "main" {
     metric_name               = "${var.name_prefix}-waf-metrics"
     sampled_requests_enabled  = true
   }
+  tags = merge(
+      var.tags,
+      {
+        Name = "${var.name_prefix}-WAF"
+      }
+    )
 }
 
 

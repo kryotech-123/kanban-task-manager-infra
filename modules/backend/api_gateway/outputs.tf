@@ -1,3 +1,6 @@
+# Outputs for the API Gateway module
+# This file contains the outputs for the API Gateway module used by the backend application
+
 output "api_id" {
   description = "The ID of the API Gateway"
   value       = aws_api_gateway_rest_api.main.id

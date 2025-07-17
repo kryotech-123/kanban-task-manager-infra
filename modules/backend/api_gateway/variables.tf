@@ -1,3 +1,6 @@
+# This file contains the variables for the API Gateway module used by the backend application
+# It defines the necessary variables for configuring the API Gateway, including its name, stage name,
+# VPC endpoint, load balancer details, and CORS settings
 variable "api_name" {
   description = "The name of the API Gateway"
   type        = string
@@ -8,10 +11,6 @@ variable "stage_name" {
   type        = string
 }
 
-variable "vpc_endpoint_id" {
-  description = "The ID of the VPC endpoint for private API Gateway integration"
-  type        = string
-}
 
 variable "load_balancer_dns" {
   description = "The DNS name of the load balancer that routes to ECS"

@@ -60,3 +60,11 @@ variable "aws_region" {
   description = "AWS region"
   type        = string
 }
+
+
+variable "tags" {
+  description = "Dev environment tags"
+
+  type        = map(string)
+  default     = {}
+}

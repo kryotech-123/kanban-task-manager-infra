@@ -1,5 +1,6 @@
 
-
+# This file contains the main configuration for the AWS RDS database instance
+# It sets up a PostgreSQL database instance with the necessary parameters and configurations
 resource "aws_db_instance" "this" {
   identifier             = var.name_prefix
   allocated_storage      = var.allocated_storage
@@ -44,6 +45,10 @@ resource "aws_db_instance" "this" {
   }
 }
 
+# create an IAM role for RDS monitoring
+# This role is used for enhanced monitoring of the RDS instance
+# It allows RDS to send monitoring data to CloudWatch
+# The role is only created if the instance is not a replica
 resource "aws_iam_role" "rds_monitoring_role" {
   count = var.is_replica ? 0 : 1
 
@@ -62,6 +67,10 @@ resource "aws_iam_role" "rds_monitoring_role" {
   })
 }
 
+
+# Attach the Amazon RDS enhanced monitoring policy to the IAM role
+# This policy allows the RDS instance to send enhanced monitoring data to CloudWatch
+# The policy is only attached if the instance is not a replica
 resource "aws_iam_role_policy_attachment" "rds_monitoring_policy" {
   count = var.is_replica ? 0 : 1
 

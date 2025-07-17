@@ -1,3 +1,6 @@
+# This file contains the configuration for the AWS WAF (Web Application Firewall)
+# It sets up a WAF for the frontend application to protect against common web exploits
+# The WAF is configured with managed rule groups and a rate limit rule
 provider "aws" {
   region = "us-east-1"
   profile = "kanban"
@@ -6,6 +9,8 @@ provider "aws" {
 
 
 
+# Create a WAF web ACL for the frontend application
+# This web ACL will be associated with the CloudFront distribution to protect it from web attacks
 resource "aws_wafv2_web_acl" "frontend" {
   provider = aws.global 
   name        = "${var.application_name}-frontend-waf"
@@ -110,5 +115,10 @@ resource "aws_wafv2_web_acl" "frontend" {
     sampled_requests_enabled   = true
   }
 
-  tags = var.tags
+  tags = merge(
+      var.tags,
+      {
+        Name = "${var.application_name}-frontend-WAF"
+      }
+    )
 }

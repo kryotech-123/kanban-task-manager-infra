@@ -1,3 +1,9 @@
+# This file contains the Terraform configuration for the API Gateway
+# It sets up an API Gateway to route requests to the ECS backend service
+# The API Gateway is configured with a proxy resource to handle all HTTP methods
+
+# Defining resource for the API Gateway
+# This resource creates a REST API that will be used to route requests to the ECS backend service
 resource "aws_api_gateway_rest_api" "main" {
   name        = var.api_name
   description = "API Gateway for ECS backend"
@@ -5,14 +11,26 @@ resource "aws_api_gateway_rest_api" "main" {
   endpoint_configuration {
     types            = ["REGIONAL"]
   }
+  tags = merge(
+      var.tags,
+      {
+        Name = "${var.api_name}-backend-api"
+      }
+    )
 }
 
+
+# Create a resource for the API Gateway
+# This resource will be used to define the proxy path for the API Gateway
 resource "aws_api_gateway_resource" "proxy" {
   rest_api_id = aws_api_gateway_rest_api.main.id
   parent_id   = aws_api_gateway_rest_api.main.root_resource_id
   path_part   = "{proxy+}"
 }
 
+
+# Create a method for the API Gateway proxy resource
+# This method allows any HTTP method to be used with the proxy resource
 resource "aws_api_gateway_method" "proxy" {
   rest_api_id   = aws_api_gateway_rest_api.main.id
   resource_id   = aws_api_gateway_resource.proxy.id
@@ -23,6 +41,9 @@ resource "aws_api_gateway_method" "proxy" {
   }
 }
 
+# Create an integration for the API Gateway proxy resource
+# This integration routes requests to the ECS backend service using HTTP proxy integration
+# The integration uses a VPC link to connect to the backend service
 resource "aws_api_gateway_integration" "proxy" {
   rest_api_id = aws_api_gateway_rest_api.main.id
   resource_id = aws_api_gateway_resource.proxy.id
@@ -40,6 +61,10 @@ resource "aws_api_gateway_integration" "proxy" {
 
 }
 
+
+# Create a method for the root resource of the API Gateway
+# This method allows any HTTP method to be used with the root resource
+# It is configured to route requests to the same backend service as the proxy resource
 resource "aws_api_gateway_method" "proxy_root" {
   rest_api_id   = aws_api_gateway_rest_api.main.id
   resource_id   = aws_api_gateway_rest_api.main.root_resource_id
@@ -47,6 +72,10 @@ resource "aws_api_gateway_method" "proxy_root" {
   authorization = "NONE"
 }
 
+# Create an integration for the root resource of the API Gateway
+# This integration routes requests to the ECS backend service using HTTP proxy integration
+# The integration uses a VPC link to connect to the backend service
+# It allows the root path to be accessed directly without needing a specific resource
 resource "aws_api_gateway_integration" "proxy_root" {
   rest_api_id = aws_api_gateway_rest_api.main.id
   resource_id = aws_api_gateway_method.proxy_root.resource_id
@@ -60,11 +89,16 @@ resource "aws_api_gateway_integration" "proxy_root" {
   connection_id   = aws_api_gateway_vpc_link.main.id
 }
 
+# Create a VPC link for the API Gateway
+# This VPC link allows the API Gateway to connect to the network load balancer in a private VPC
 resource "aws_api_gateway_vpc_link" "main" {
   name        = "${var.api_name}-vpc-link"
   target_arns = [var.load_balancer_arn]
 }
 
+# Create a deployment for the API Gateway
+# This deployment is necessary to make the API Gateway changes effective
+# It creates a new deployment whenever there are changes to the API Gateway configuration
 resource "aws_api_gateway_deployment" "main" {
   depends_on = [
     aws_api_gateway_integration.proxy,
@@ -74,6 +108,10 @@ resource "aws_api_gateway_deployment" "main" {
   rest_api_id = aws_api_gateway_rest_api.main.id
 }
 
+# Create a stage for the API Gateway
+# This stage is used to manage different versions of the API
+# It allows for deployment of the API to a specific stage, such as "dev" or "prod"
+# The stage can be used to access the API via a specific URL
 resource "aws_api_gateway_stage" "main" {
   stage_name    = var.stage_name
   rest_api_id   = aws_api_gateway_rest_api.main.id
@@ -99,7 +137,10 @@ resource "aws_api_gateway_stage" "main" {
   # depends_on = [aws_api_gateway_account.main]
 }
 
+
 # CORS configuration
+# This section enables CORS (Cross-Origin Resource Sharing) for the API Gateway
+# It allows the API to be accessed from different origins, which is useful for frontend applications
 module "cors" {
   source  = "squidfunk/api-gateway-enable-cors/aws"
   version = "0.3.3"

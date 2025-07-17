@@ -80,6 +80,7 @@ module "backend_networking" {
   public_subnets   = var.public_subnets
   database_subnets = var.database_subnets
   region           = var.region
+  tags             = var.tags
 }
 
 
@@ -95,30 +96,30 @@ module "ecs_cluster" {
   db_host         = module.database.db_instance_endpoint
   db_password     = var.db_password
   db_name         = var.db_name
-  mongo_host = module.mongo_db.cluster_endpoint
-  mongo_name = var.mongo_name
-  mongo_user = var.mongo_user
-  mongo_pass = var.mongo_pass
-  jwt_secret = var.jwt_secret
-  jwt_expire = var.jwt_expire
-  jwt_refresh = var.jwt_refresh
-  email_host = var.email_host
-  email_port = var.email_port
-  email_username = var.email_username
-  email_password = var.email_password
+
+  jwt_secret      = var.jwt_secret
+  jwt_expire      = var.jwt_expire
+  jwt_refresh     = var.jwt_refresh
+  email_host      = var.email_host
+  email_port      = var.email_port
+  email_username  = var.email_username
+  email_password  = var.email_password
   email_ssl_trust = ""
-  sender_email = var.sender_email
+  sender_email    = var.sender_email
+  tags            = var.tags
 }
 
 module "waf" {
   source       = "../../modules/backend/waf"
   resource_arn = module.api_gateway.api_arn
   name_prefix  = var.application_name
+  tags         = var.tags
 }
 module "ecr_repository" {
   source          = "../../modules/backend/ecr"
   repository_name = "${var.application_name}-ecr-repo"
   kms_key_arn     = var.kms_key_arn
+  tags            = var.tags
 }
 
 module "database" {
@@ -131,6 +132,7 @@ module "database" {
   security_group_ids         = [module.backend_networking.database_security_group_id]
   subnet_ids                 = module.backend_networking.database_subnets
   kms_key_arn                = var.kms_key_arn
+  tags                       = var.tags
 }
 
 
@@ -141,7 +143,6 @@ module "api_gateway" {
   stage_name        = var.stage_name
   region            = var.region
   api_name          = "${var.application_name}-api"
-  vpc_endpoint_id   = module.backend_networking.vpc_endpoint
   # cloudwatch_role_arn = module.monitoring.central_log_group_arn
   tags = var.tags
 }
@@ -159,30 +160,30 @@ module "monitoring" {
   aws_region              = var.region
   alarm_sns_topic_kms_key = var.kms_key_arn
   log_retention_days      = 30
-
+  tags                    = var.tags
   resource_arns = {
-    api_gateway      = module.api_gateway.api_name
-    ecs_cluster      = module.ecs_cluster.cluster_name
-    rds_instance     = module.database.db_instance_name
-    nlb              = module.ecs_cluster.load_balancer_arn
-    cloudfront       = module.frontend_cloudfront.distribution_id
-    ecr_repository   = module.ecr_repository.name
-    vpc              = module.backend_networking.vpc_id
-    nlb_target_group_blue = module.ecs_cluster.blue_target_group_arn
+    api_gateway            = module.api_gateway.api_name
+    ecs_cluster            = module.ecs_cluster.cluster_name
+    rds_instance           = module.database.db_instance_name
+    nlb                    = module.ecs_cluster.load_balancer_arn
+    cloudfront             = module.frontend_cloudfront.distribution_id
+    ecr_repository         = module.ecr_repository.name
+    vpc                    = module.backend_networking.vpc_id
+    nlb_target_group_blue  = module.ecs_cluster.blue_target_group_arn
     nlb_target_group_green = module.ecs_cluster.green_target_group_arn
-    ecs_service      = module.ecs_cluster.service_name
+    ecs_service            = module.ecs_cluster.service_name
 
   }
 }
 
 
-module "mongo_db" {
-  source = "../../modules/backend/mongo"
-  cluster_name = "${var.application_name}-mongo-cluster"
-  mongo_master_username = var.mongo_user
-  mongo_master_password = var.mongo_pass
-  vpc_id = module.backend_networking.vpc_id
-  subnet_ids  = module.backend_networking.database_subnets
-  mongo_security_group_id = module.backend_networking.mongo_security_group_id
-  
-}
+# module "mongo_db" {
+#   source = "../../modules/backend/mongo"
+#   cluster_name = "${var.application_name}-mongo-cluster"
+#   mongo_master_username = var.mongo_user
+#   mongo_master_password = var.mongo_pass
+#   vpc_id = module.backend_networking.vpc_id
+#   subnet_ids  = module.backend_networking.database_subnets
+#   mongo_security_group_id = module.backend_networking.mongo_security_group_id
+
+# }

@@ -1,9 +1,34 @@
+# This file contains the main configuration for the AWS ECS service with CodeDeploy integration
+# It sets up an ECS service that uses CodeDeploy for blue/green deployments
+# The service is configured to use a Network Load Balancer (NLB) for routing traffic
+
+
+
+# Resource provisioning for an ECS cluster
+# This resource creates an ECS cluster that will host the backend application
 resource "aws_ecs_cluster" "cluster" {
   name = "${var.app_name}-cluster"
+  tags = merge(
+      var.tags,
+      {
+        Name = "${var.app_name}-backend-cluster"
+      }
+    )
 }
+
+
+# CodeDeploy application and deployment group for ECS
+# This section sets up CodeDeploy to manage deployments for the ECS service
+# It creates a CodeDeploy application and a deployment group that uses the ECS service
 resource "aws_codedeploy_app" "ecs_app" {
   compute_platform = "ECS"
   name             = "${var.app_name}-codedeploy-app"
+  tags = merge(
+      var.tags,
+      {
+        Name = "${var.app_name}-codedeploy-deployment-controller"
+      }
+    )
 }
 resource "aws_codedeploy_deployment_group" "ecs_deployment_group" {
   app_name               = aws_codedeploy_app.ecs_app.name
@@ -57,6 +82,8 @@ resource "aws_codedeploy_deployment_group" "ecs_deployment_group" {
 
 
 # Network Load Balancer
+# This section creates a Network Load Balancer (NLB) for routing traffic to the ECS service
+# The NLB is configured to handle TCP traffic and forward it to the ECS tasks
 resource "aws_lb" "private" {
   name               = "${var.app_name}-nlb-${var.environment}"
   internal           = true
@@ -75,6 +102,8 @@ resource "aws_lb" "private" {
 }
 
 # Target Group for NLB
+# This section creates a target group for the NLB that routes traffic to the ECS tasks
+# The target group is configured for TCP traffic and uses the ECS tasks' IP addresses as targets
 resource "aws_lb_target_group" "ecs_blue" {
   name_prefix = "tgb-"
   port        = var.container_port
@@ -99,6 +128,9 @@ resource "aws_lb_target_group" "ecs_blue" {
 }
 
 
+# Target Group for NLB (Green)
+# This section creates a second target group for the NLB that can be used for blue/green deployments
+# The green target group is configured similarly to the blue target group
 resource "aws_lb_target_group" "ecs_green" {
   name_prefix = "tgg-"
   port        = var.container_port
@@ -122,10 +154,14 @@ resource "aws_lb_target_group" "ecs_green" {
 }
 
 
-# TCP Listener (replaces HTTP listener)
+# TCP Listener
+# This section creates a TCP listener for the NLB that forwards traffic to the ECS tasks
+# The listener listens on port 80 and forwards traffic to the blue target group
+# Since codedeploy handles the traffic routing, we use a single listener, it automatically switches between blue and green target groups
+# that forwards traffic to the currently active target group
 resource "aws_lb_listener" "tcp" {
   load_balancer_arn = aws_lb.private.arn
-  port              = var.container_port
+  port              = 80
   protocol          = "TCP"
 
   default_action {
@@ -135,6 +171,8 @@ resource "aws_lb_listener" "tcp" {
 }
 
 # Security Groups for Fargate Tasks
+# This section creates a security group for the Fargate tasks
+# The security group allows inbound traffic from the NLB and outbound traffic to the internet
 module "fargate_sg" {
   source  = "terraform-aws-modules/security-group/aws"
 
@@ -145,7 +183,7 @@ module "fargate_sg" {
   # Allow traffic from NLB (NLB doesn't use security groups, so we allow from VPC CIDR)
   ingress_with_cidr_blocks = [
     {
-      rule        = "http-80-tcp"
+      rule        = "http-8080-tcp"
       cidr_blocks = var.vpc_cidr
       description = "Allow TCP from VPC (NLB traffic)"
     }
@@ -154,7 +192,10 @@ module "fargate_sg" {
   egress_rules = ["all-all"]
 }
 
-# Task Definition (unchanged)
+# Task Definition 
+# This section defines the ECS task definition for the backend application
+# The task definition specifies the Docker image, CPU and memory requirements, and environment variables
+# It also configures logging to CloudWatch
 resource "aws_ecs_task_definition" "app" {
   family                   = "${var.app_name}-task"
   network_mode             = "awsvpc"
@@ -258,7 +299,11 @@ resource "aws_ecs_task_definition" "app" {
   
 }
 
-# ECS Service (updated to use NLB)
+# ECS Service
+# This section creates an ECS service that runs the task definition
+# The service is configured to use the NLB and is set up for blue/green deployments
+# It uses CodeDeploy to manage the deployment process
+# The service is set to run in Fargate mode with the specified number of desired tasks
 resource "aws_ecs_service" "app" {
   name            = "${var.app_name}-service"
   cluster         = aws_ecs_cluster.cluster.id
@@ -291,7 +336,9 @@ resource "aws_ecs_service" "app" {
   }
 }
 
-# Auto Scaling (unchanged)
+# Auto Scaling
+# This section sets up auto scaling for the ECS service
+# It configures the service to scale based on CPU utilization :target_tracking_scaling_policy_configuration:
 resource "aws_appautoscaling_target" "ecs_target" {
   max_capacity       = 10
   min_capacity       = var.desired_count
@@ -300,6 +347,9 @@ resource "aws_appautoscaling_target" "ecs_target" {
   service_namespace  = "ecs"
 }
 
+# Auto Scaling Policy
+# This section creates a scaling policy for the ECS service
+# The policy uses target tracking to maintain a CPU utilization target of 70%
 resource "aws_appautoscaling_policy" "ecs_cpu_policy" {
   name               = "${var.app_name}-cpu-scaling"
   policy_type        = "TargetTrackingScaling"
@@ -315,7 +365,11 @@ resource "aws_appautoscaling_policy" "ecs_cpu_policy" {
   }
 }
 
-# IAM Roles (unchanged)
+# IAM Roles
+# This section creates IAM roles for the ECS tasks and the task execution role
+# The roles are used to grant permissions for the tasks to access AWS services
+# The task execution role is used for pulling images from ECR and writing logs to CloudWatch
+# The task role is used for the application to access other AWS services
 resource "aws_iam_role" "ecs_task_execution_role" {
   name = "${var.app_name}-ecs-task-execution-role"
 
@@ -331,6 +385,8 @@ resource "aws_iam_role" "ecs_task_execution_role" {
   })
 }
 
+# Attach the Amazon ECS task execution role policy to the task execution role
+# This policy allows the ECS tasks to pull images from ECR and write logs to CloudWatch
 resource "aws_iam_role" "ecs_task_role" {
   name = "${var.app_name}-ecs-task-role"
 
@@ -346,12 +402,17 @@ resource "aws_iam_role" "ecs_task_role" {
   })
 }
 
+# Attach the Amazon ECS task execution role policy to the task execution role
+# This policy allows the ECS tasks to pull images from ECR and write logs to CloudWatch
 resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
   role       = aws_iam_role.ecs_task_execution_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-# CloudWatch Logs (unchanged)
+# CloudWatch Logs
+# This section creates a CloudWatch log group for the ECS tasks
+# The log group is used to store the logs generated by the ECS tasks
+# The logs are configured to have a retention period of 7 days
 resource "aws_cloudwatch_log_group" "ecs" {
   name              = "/ecs/${var.app_name}-task"
   retention_in_days = 7
@@ -359,6 +420,9 @@ resource "aws_cloudwatch_log_group" "ecs" {
 
 
 
+# IAM Role for CodeDeploy
+# This section creates an IAM role for CodeDeploy to manage deployments for the ECS service
+# The role allows CodeDeploy to access the ECS service and perform deployments
 resource "aws_iam_role" "codedeploy_role" {
   name = "${var.app_name}-codedeploy-role"
 
@@ -376,6 +440,8 @@ resource "aws_iam_role" "codedeploy_role" {
   })
 }
 
+# Attach the AWS CodeDeploy role policy to the CodeDeploy role
+# This policy allows CodeDeploy to manage deployments for the ECS service
 resource "aws_iam_role_policy_attachment" "codedeploy_role_policy" {
   role       = aws_iam_role.codedeploy_role.name
   policy_arn = "arn:aws:iam::aws:policy/AWSCodeDeployRoleForECS"

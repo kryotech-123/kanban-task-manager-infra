@@ -1,3 +1,5 @@
+# This file contains the variables for the ECS module used by the backend application
+# It defines the necessary variables for configuring the ECS cluster, service, and task definitions
 variable "vpc_id" {
   description = "VPC ID where resources will be created"
   type        = string
@@ -59,7 +61,7 @@ variable "fargate_memory" {
 variable "desired_count" {
   description = "Number of tasks to run"
   type        = number
-  default     = 2
+  default     = 1
 }
 variable "environment" {
   description = "Deployment environment (dev/stage/prod)"
@@ -96,18 +98,23 @@ variable "mongo_pass" {
   description = "Master password for MongoDB"
   type        = string  
   sensitive = true
+    default = ""
+
 }
 
 
 variable "mongo_host" {
   description = "MongoDB host for the ECS tasks"
   type        = string
+  default = ""
   
 }
 
 variable "mongo_name" {
   description = "MongoDB name for the ECS tasks"
   type        = string
+    default = ""
+
   
 }
 

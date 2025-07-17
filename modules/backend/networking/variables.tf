@@ -1,3 +1,6 @@
+# This file contains the variables for the networking module
+# It defines the necessary inputs for creating a VPC, subnets, and security groups for the backend application
+# The variables include VPC name, CIDR block, availability zones, subnets, and tags
 variable "vpc_name" {
   description = "name of vpc"
   default     = "kanban_vpc"
