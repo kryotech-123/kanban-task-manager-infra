@@ -72,13 +72,16 @@ jobs:
         distribution: 'temurin'
 
     - name: Build with Maven
-      run: mvn -B package --file pom.xml
+      run: |
+       cd kanban-task-management-backend
+       mvn -B package --file pom.xml
 
     - name: SonarQube Scan
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed for PR decoration
       run: |
+        cd kanban-task-management-backend
         mvn sonar:sonar \
           -Dsonar.projectKey=your-project-key \
           -Dsonar.organization=your-org-name \
