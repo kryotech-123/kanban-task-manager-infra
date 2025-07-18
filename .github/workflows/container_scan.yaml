@@ -52,12 +52,7 @@ jobs:
           ignore-unfixed: true
           severity: 'CRITICAL'
           vuln-type: 'os,library'
-      - name: Display Trivy Report
-        if: always()  # Always show report, even if scan fails
-        run: |
-          echo "=== FULL TRIVY VULNERABILITY REPORT ==="
-          echo "${{ steps.trivy-scan.outputs.result }}"
-          echo "======================================"
+      
 
     #   - name: Push image to Amazon ECR
     #     if: success() # Only push if Trivy scan passes
