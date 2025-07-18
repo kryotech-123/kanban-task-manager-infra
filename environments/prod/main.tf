@@ -11,10 +11,10 @@ terraform {
     }
   }
   backend "s3" {
-    bucket         = "terraform-state-kanban-dev"
-    key            = "env:/dev/kanban-task-manager/terraform.tfstate"
+    bucket         = "terraform-kanban-state-prod"
+    key            = "env:/prod/kanban-task-manager/production.tfstate"
     region         = "eu-west-1"
-    dynamodb_table = "terraform-lock-table-dev" # DynamoDB table for state locking
+    dynamodb_table = "terraform-lock-table-prod" # DynamoDB table for state locking
     encrypt        = true
     profile        = "kanban"
   }
@@ -175,4 +175,5 @@ module "monitoring" {
 
   }
 }
+
 

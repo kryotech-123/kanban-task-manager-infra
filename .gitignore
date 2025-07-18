@@ -10,3 +10,7 @@ crash.log
 override.tf
 override.tf.json
 # Include local override files
+
+*.tfvars
+# Ignore plan files
+*.tfplan

@@ -1,6 +1,6 @@
 # modules/monitoring/iam.tf
-resource "aws_iam_role" "log_forwarder" {
-  name               = "${var.environment}-log-forwarder-role"
+resource "aws_iam_role" "prod_log_forwarder" {
+  name               = "${var.environment}-log-forwarder-role-prod"
   description        = "IAM role for CloudWatch Logs subscription forwarding"
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
@@ -16,7 +16,7 @@ resource "aws_iam_role" "log_forwarder" {
 
 
 
-resource "aws_iam_role_policy_attachment" "log_forwarder" {
-  role       = aws_iam_role.log_forwarder.name
+resource "aws_iam_role_policy_attachment" "prod_log_forwarder" {
+  role       = aws_iam_role.prod_log_forwarder.name
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess" 
 }
