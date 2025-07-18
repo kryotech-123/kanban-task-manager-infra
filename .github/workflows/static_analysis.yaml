@@ -39,8 +39,10 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          /opt/sonar-scanner/bin/sonar-scanner \
+          sonar-scanner \
             -Dsonar.projectKey=Kanban-task-manager \
             -Dsonar.sources=./backend \
             -Dsonar.host.url=https://f7f794beda6e.ngrok-free.app \
-            -Dsonar.login=$SONAR_TOKEN
+            -Dsonar.login=$SONAR_TOKEN \
+            -Dsonar.projectBaseDir=./backend \
+            -Dsonar.java.binaries=./backend/target
