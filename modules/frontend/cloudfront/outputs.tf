@@ -1,3 +1,6 @@
+# This file contains the outputs for the CloudFront module
+# It exports the necessary information about the CloudFront distribution and its origin access identity
+
 output "distribution_id" {
   description = "ID of the CloudFront distribution"
   value       = aws_cloudfront_distribution.frontend.id

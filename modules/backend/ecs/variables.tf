@@ -1,3 +1,5 @@
+# This file contains the variables for the ECS module used by the backend application
+# It defines the necessary variables for configuring the ECS cluster, service, and task definitions
 variable "vpc_id" {
   description = "VPC ID where resources will be created"
   type        = string
@@ -16,7 +18,7 @@ variable "app_name" {
 variable "container_port" {
   description = "Port exposed by the container"
   type        = number
-  default     = 80
+  default     = 8080
 }
 
 variable "ecr_repository" {
@@ -29,6 +31,26 @@ variable "fargate_cpu" {
   type        = number
   default     = 256
 }
+variable "db_host" {
+  description = "Database host for the ECS tasks"
+  type        = string
+}
+
+variable "db_password" {
+  description = "value for the database password for the ECS tasks"
+  type        = string
+}
+
+variable "db_user" {
+  description = "value for the database username for the ECS tasks"
+  type        = string  
+  
+}
+
+variable "db_name" {
+  description = "Database name for the ECS tasks"
+  type        = string
+}
 
 variable "fargate_memory" {
   description = "Fargate memory (MB)"
@@ -39,7 +61,7 @@ variable "fargate_memory" {
 variable "desired_count" {
   description = "Number of tasks to run"
   type        = number
-  default     = 2
+  default     = 1
 }
 variable "environment" {
   description = "Deployment environment (dev/stage/prod)"
@@ -60,4 +82,91 @@ variable "internal_alb" {
   description = "Whether the ALB should be internal"
   type        = bool
   default     = true
+}
+variable "region" {
+  description = "AWS region for the resources"
+  type        = string
+}
+
+
+
+variable "mongo_user" {
+  default = "kanban_mongo_user"
+}
+
+variable "mongo_pass" {
+  description = "Master password for MongoDB"
+  type        = string  
+  sensitive = true
+    default = ""
+
+}
+
+
+variable "mongo_host" {
+  description = "MongoDB host for the ECS tasks"
+  type        = string
+  default = ""
+  
+}
+
+variable "mongo_name" {
+  description = "MongoDB name for the ECS tasks"
+  type        = string
+    default = ""
+
+  
+}
+
+variable "jwt_secret" {
+  description = "JWT secret for the application"
+  type        = string
+}
+
+variable "jwt_expire" {
+  description = "JWT access token expiration time in seconds"
+  type        = string
+}
+
+variable "jwt_refresh" {
+  description = "JWT refresh token expiration time in seconds"
+  type        = string
+  
+}
+
+
+variable "email_host" {
+  description = "Email host for sending notifications"
+  type        = string  
+  
+}
+variable "email_port" {
+  description = "Email port for sending notifications"
+  type        = string
+}
+variable "email_username" {
+  description = "Email username for sending notifications"
+  type        = string
+} 
+variable "email_password" {
+  description = "Email password for sending notifications"
+  type        = string
+  sensitive   = true
+}
+
+variable "mongo_db_port" {
+  description = "value for the MongoDB port for the ECS tasks"
+  type = string
+  default = "27017"
+}
+
+variable "email_ssl_trust" {
+  description = "value for the email SSL trust for the ECS tasks"
+  type = string
+}
+
+variable "sender_email" {
+  description = "Sender email address for notifications"
+  type        = string
+  
 }

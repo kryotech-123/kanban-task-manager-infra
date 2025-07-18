@@ -1,0 +1,21 @@
+# This file contains the outputs for the AWS ECR repository module
+# It exports the necessary information about the ECR repository created for the backend application
+output "arn" {
+  description = "ARN of the ECR repository"
+  value       = aws_ecr_repository.this.arn
+}
+
+output "registry_id" {
+  description = "Registry ID where the repository was created"
+  value       = aws_ecr_repository.this.registry_id
+}
+
+output "repository_url" {
+  description = "URL of the repository"
+  value       = aws_ecr_repository.this.repository_url
+}
+
+output "name" {
+  description = "Name of the repository"
+  value       = aws_ecr_repository.this.name
+}

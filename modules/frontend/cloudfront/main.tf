@@ -1,7 +1,13 @@
+
+# Create an AWS CloudFront distribution for the frontend application
+# This module sets up the CloudFront distribution with the specified origin, cache behavior, and security
+# It also configures the origin access identity for S3 and applies the WAF rules
 resource "aws_cloudfront_origin_access_identity" "frontend" {
   comment = "OAI for ${var.application_name}"
+  
 }
 
+# CloudFront distribution configuration
 resource "aws_cloudfront_distribution" "frontend" {
   enabled             = true
   is_ipv6_enabled     = true
@@ -9,16 +15,24 @@ resource "aws_cloudfront_distribution" "frontend" {
   default_root_object = "index.html"
   price_class         = var.price_class
   web_acl_id          = var.web_acl_arn
-
+  tags = merge(
+      var.tags,
+      {
+        Name = "${var.application_name}-frontend-cloudfront"
+      }
+    )
+  # Define the origin for the CloudFront distribution
   origin {
     domain_name = var.s3_bucket_regional_domain_name
     origin_id   = var.origin_id
-
+  
+  # Configure the S3 origin with the origin access identity
     s3_origin_config {
       origin_access_identity = aws_cloudfront_origin_access_identity.frontend.cloudfront_access_identity_path
     }
   }
 
+# Define the default cache behavior for the CloudFront distribution
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
     cached_methods   = ["GET", "HEAD"]
@@ -39,6 +53,7 @@ resource "aws_cloudfront_distribution" "frontend" {
 
   }
 
+# Configure the viewer policy and SSL settings
   restrictions {
     geo_restriction {
       restriction_type = "none"
@@ -62,7 +77,7 @@ resource "aws_cloudfront_distribution" "frontend" {
     response_page_path = "/index.html"
   }
 
-  tags = var.tags
+  
 }
 
 

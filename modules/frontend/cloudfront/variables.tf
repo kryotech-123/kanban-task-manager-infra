@@ -1,3 +1,6 @@
+# This file contains the variables for the CloudFront module
+# It defines the necessary inputs required to configure the CloudFront distribution
+
 variable "application_name" {
   description = "Name of the application"
   type        = string

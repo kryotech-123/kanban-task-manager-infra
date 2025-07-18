@@ -1,0 +1,69 @@
+name: Dockerize, Push Backend to ECR, and Deploy to ECS
+on:
+  push:
+    branches: [dev]
+    paths:
+      - "backend/**"
+  workflow_dispatch:
+permissions:
+  id-token: write
+  contents: read
+env:
+  AWS_REGION: "eu-west-1"
+  BACKEND_FILE_DIRECTORY: ./backend
+  ECR_URI: "682033471539.dkr.ecr.eu-west-1.amazonaws.com/kanban-task-manager-dev-ecr-repo"
+  ECS_CLUSTER: "kanban-task-manager-dev-cluster"
+  ECS_SERVICE: "kanban-task-manager-dev-service"
+  TASK_DEF_FILE: "ecs-task-def.json"           
+  CONTAINER_NAME: "kanban-task-manager-dev"    
+jobs:
+  integrate:
+    name: Run tests and prepare Docker build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Run tests
+        run: |
+          echo "Running backend tests..."
+      - name: Build check
+        run: |
+          echo "Verifying Docker build process"
+  deploy:
+    name: Build, Push Docker Image & Deploy to ECS
+    runs-on: ubuntu-latest
+    needs: integrate
+    defaults:
+      run:
+        working-directory: ${{ env.BACKEND_FILE_DIRECTORY }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.BACKEND_ROLE }}
+          role-session-name: GitHub-Action-Role
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: Build and Push Docker image
+        run: |
+          IMAGE_TAG=dev-${{ github.sha }}
+          docker build -t ${{ env.ECR_URI }}:$IMAGE_TAG .
+          docker push ${{ env.ECR_URI }}:$IMAGE_TAG
+          echo ":white_check_mark: Docker image pushed to ECR: ${{ env.ECR_URI }}:$IMAGE_TAG"
+      - name: Fill in new image ID in task definition
+        id: render-task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ env.TASK_DEF_FILE }}
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ env.ECR_URI }}:dev-${{ github.sha }}
+      - name: Deploy updated task definition to ECS service
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-task-def.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true

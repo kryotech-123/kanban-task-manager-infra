@@ -1,7 +1,6 @@
 variable "name_prefix" {
   description = "Prefix for WAF resources"
   type        = string
-  default     = "api-gateway"
 }
 
 variable "resource_arn" {
@@ -45,4 +44,10 @@ variable "rate_limit" {
   description = "Requests per 5 minute period per IP"
   type        = number
   default     = 2000
+}
+variable "tags" {
+  description = "Dev environment tags"
+
+  type        = map(string)
+  default     = {}
 }

@@ -51,11 +51,6 @@ variable "ecr_repository" {
 
 
 
-# ================================ API GATEWAY ===================================================
-variable "api_gateway_arn" {
-  description = "arn of api gateway"
-  type        = string
-}
 
 
 # ================================================== DATABASE =========================================================
@@ -63,7 +58,7 @@ variable "db_name" {
   description = "Name of the database"
   type        = string
 }
-variable "db_username" {
+variable "db_user" {
   description = "Master username for the database"
   type        = string
   default     = "postgres"
@@ -73,6 +68,7 @@ variable "db_password" {
   type        = string
   sensitive   = true
 }
+
 
 # ============================================ General config ========================================
 variable "application_name" {
@@ -90,4 +86,77 @@ variable "environment" {
 variable "region" {
   description = "AWS region for the resources"
   type        = string
+}
+
+
+
+
+
+# ================================== ECS Variables =========================================================
+
+
+variable "mongo_user" {
+  default = "kanban_mongo_user"
+}
+
+variable "mongo_pass" {
+  description = "Master password for MongoDB"
+  type        = string
+  sensitive   = true
+}
+
+
+
+
+variable "mongo_name" {
+  description = "MongoDB name for the ECS tasks"
+  type        = string
+
+}
+
+variable "jwt_secret" {
+  description = "JWT secret for the application"
+  type        = string
+}
+
+variable "jwt_expire" {
+  description = "JWT access token expiration time in seconds"
+  type        = string
+}
+
+variable "jwt_refresh" {
+  description = "JWT refresh token expiration time in seconds"
+  type        = string
+
+}
+
+
+variable "email_host" {
+  description = "Email host for sending notifications"
+  type        = string
+
+}
+variable "email_port" {
+  description = "Email port for sending notifications"
+  type        = string
+}
+variable "email_username" {
+  description = "Email username for sending notifications"
+  type        = string
+}
+variable "email_password" {
+  description = "Email password for sending notifications"
+  type        = string
+  sensitive   = true
+}
+
+variable "email_ssl_trust" {
+  description = "email ssl trust for sending notifications"
+  type        = string
+}
+
+variable "sender_email" {
+  description = "Sender email address for notifications"
+  type        = string
+
 }

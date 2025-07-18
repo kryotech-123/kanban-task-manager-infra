@@ -1,3 +1,6 @@
+# This file contains the variables for the API Gateway module used by the backend application
+# It defines the necessary variables for configuring the API Gateway, including its name, stage name,
+# VPC endpoint, load balancer details, and CORS settings
 variable "api_name" {
   description = "The name of the API Gateway"
   type        = string
@@ -6,13 +9,8 @@ variable "api_name" {
 variable "stage_name" {
   description = "The name of the API Gateway stage"
   type        = string
-  default     = "dev"
 }
 
-variable "vpc_endpoint_id" {
-  description = "The ID of the VPC endpoint for private API Gateway integration"
-  type        = string
-}
 
 variable "load_balancer_dns" {
   description = "The DNS name of the load balancer that routes to ECS"
@@ -29,6 +27,25 @@ variable "allowed_origins" {
   type        = list(string)
   default     = ["*"]
 }
+variable "region" {
+  description = "AWS region where the API Gateway is deployed"
+  type        = string
+  
+}
+
+variable "cloudwatch_role_arn" {
+  description = "ARN of the IAM role for CloudWatch logging"
+  type        = string
+  default     = null
+  
+}
+
+variable "tags" {
+  description = "Tags to apply to the API Gateway resources"
+  type        = map(string)
+  default     = {}
+  
+}
 
 variable "allowed_methods" {
   description = "List of allowed HTTP methods for CORS"
@@ -41,3 +58,4 @@ variable "allowed_headers" {
   type        = list(string)
   default     = ["*"]
 }
+

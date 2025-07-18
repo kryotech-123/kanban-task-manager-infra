@@ -4,7 +4,7 @@ on:
   push:
     branches: [dev]
     paths:
-      - "index.html"
+      - "build/**"
   workflow_dispatch:
 
 permissions:
@@ -13,7 +13,7 @@ permissions:
 
 env:
   AWS_REGION: "eu-west-1"
-  S3_BUCKET: "kanban-task-manager-dev-d1ca7622"
+  LOCAL_SYNC_PATH: "build/"
 
 jobs:
   integrate:
@@ -46,10 +46,16 @@ jobs:
       - name: configure aws environment
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.IAMROLE_GITHUB }}
+          role-to-assume: arn:aws:iam::${{ secrets.ACCOUNT_ID }}:role/${{ secrets.OIDC_ROLE_NAME }}
           role-session-name: GitHub-Action-Role
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Sync contents to s3 (dev environment)
         run: |
-          aws s3 sync . s3://${{ env.S3_BUCKET }} --delete
+          aws s3 sync ${{ env.LOCAL_SYNC_PATH }} s3://${{ secrets.S3_BUCKET }} --delete
+
+      - name: Invalidate Cloudfront distribution
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/*"
