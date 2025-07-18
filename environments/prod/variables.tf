@@ -105,7 +105,10 @@ variable "mongo_pass" {
   sensitive   = true
 }
 
-
+variable "mongo_host" {
+  description = "MongoDB host for the ECS tasks"
+  type        = string
+}
 
 
 variable "mongo_name" {
@@ -114,6 +117,8 @@ variable "mongo_name" {
 
 }
 
+
+#================================= JWT Variables =========================================================
 variable "jwt_secret" {
   description = "JWT secret for the application"
   type        = string

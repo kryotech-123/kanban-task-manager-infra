@@ -1,46 +1,85 @@
-name: Static Analysis
+# name: Static Analysis
+
+# on:
+#   push:
+#     branches: [main, dev]
+#     paths:
+#       - "modules/backend/**"
+#   workflow_dispatch:
+
+# jobs:
+#   sonar-scan:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v3
+
+#       - name: Set up JDK 17
+#         uses: actions/setup-java@v3
+#         with:
+#           java-version: '17'
+#           distribution: 'temurin'
+
+#       - name: Cache SonarQube scanner
+#         uses: actions/cache@v3
+#         with:
+#           path: ~/.sonar/cache
+#           key: ${{ runner.os }}-sonar
+#           restore-keys: ${{ runner.os }}-sonar
+
+#       - name: Install SonarScanner CLI
+#         run: |
+#           wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+#           unzip sonar-scanner-cli-5.0.1.3006-linux.zip
+#           sudo mv sonar-scanner-5.0.1.3006-linux /opt/sonar-scanner
+#           echo "/opt/sonar-scanner/bin" >> $GITHUB_PATH
+
+#       - name: Run SonarQube Scanner
+#         env:
+#           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+#         run: |
+#           sonar-scanner \
+#             -Dsonar.projectKey=Kanban-task-manager \
+#             -Dsonar.sources=modules/backend \
+#             -Dsonar.host.url=https://2c51181175b4.ngrok-free.app \
+#             -Dsonar.login=$SONAR_TOKEN
+
+
+
+name: CI/CD with SonarQube Analysis
 
 on:
   push:
-    branches: [main, dev]
-    paths:
-      - "modules/backend/**"
-  workflow_dispatch:
+    branches: [ dev ]
+  pull_request:
+    branches: [ dev ]
 
 jobs:
-  sonar-scan:
+  build-and-scan:
     runs-on: ubuntu-latest
-
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Needed for SonarQube to get full git history
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
 
-      - name: Cache SonarQube scanner
-        uses: actions/cache@v3
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
+    - name: Build with Maven
+      run: mvn -B package --file pom.xml
 
-      - name: Install SonarScanner CLI
-        run: |
-          wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
-          unzip sonar-scanner-cli-5.0.1.3006-linux.zip
-          sudo mv sonar-scanner-5.0.1.3006-linux /opt/sonar-scanner
-          echo "/opt/sonar-scanner/bin" >> $GITHUB_PATH
-
-      - name: Run SonarQube Scanner
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          sonar-scanner \
-            -Dsonar.projectKey=Kanban-task-manager \
-            -Dsonar.sources=modules/backend \
-            -Dsonar.host.url=https://2c51181175b4.ngrok-free.app \
-            -Dsonar.login=$SONAR_TOKEN
+    - name: SonarQube Scan
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed for PR decoration
+      run: |
+        mvn sonar:sonar \
+          -Dsonar.projectKey=your-project-key \
+          -Dsonar.organization=your-org-name \
+          -Dsonar.host.url=https://sonarcloud.io  # Or your self-hosted SonarQube URL

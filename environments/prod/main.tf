@@ -96,7 +96,10 @@ module "ecs_cluster" {
   db_host         = module.database.db_instance_endpoint
   db_password     = var.db_password
   db_name         = var.db_name
-
+  mongo_name      = var.mongo_name
+  mongo_user      = var.mongo_user
+  mongo_pass      = var.mongo_pass
+  mongo_host      = var.mongo_host
   jwt_secret      = var.jwt_secret
   jwt_expire      = var.jwt_expire
   jwt_refresh     = var.jwt_refresh
