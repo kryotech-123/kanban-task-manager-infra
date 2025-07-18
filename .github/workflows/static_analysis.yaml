@@ -40,7 +40,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           sonar-scanner \
-            -Dsonar.projectKey=kanban-task-manager \
+            -Dsonar.projectKey=Kanban-task-manager \
             -Dsonar.sources=./backend \
             -Dsonar.host.url=https://97d897005ea3.ngrok-free.app \
             -Dsonar.login=$SONAR_TOKEN
