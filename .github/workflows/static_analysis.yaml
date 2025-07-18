@@ -43,4 +43,4 @@ jobs:
             -Dsonar.projectKey=Kanban-task-manager \
             -Dsonar.sources=./backend \
             -Dsonar.host.url=https://97d897005ea3.ngrok-free.app \
-            -Dsonar.login=$SONAR_TOKEN
+            -Dsonar.login="$SONAR_TOKEN"
