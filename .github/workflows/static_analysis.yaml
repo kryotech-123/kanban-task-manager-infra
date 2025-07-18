@@ -79,7 +79,4 @@ jobs:
         # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed for PR decoration
       run: |
         cd kanban-task-management-backend
-        mvn sonar:sonar \
-          -Dsonar.projectKey=https://sonarcloud.io/project/configuration?id=kryotech-123_kanban-task-manager-infra \
-          -Dsonar.organization=kryotech-123 \
-          -Dsonar.host.url=https://sonarcloud.io  # Or your self-hosted SonarQube URL
+        mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kryotech-123_kanban-task-manager-infra
