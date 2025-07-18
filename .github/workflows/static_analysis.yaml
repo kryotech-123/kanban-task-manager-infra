@@ -71,10 +71,7 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Build with Maven
-      run: |
-       cd kanban-task-management-backend
-       mvn -B package --file pom.xml
+  
 
     - name: SonarQube Scan
       env:
@@ -83,6 +80,6 @@ jobs:
       run: |
         cd kanban-task-management-backend
         mvn sonar:sonar \
-          -Dsonar.projectKey=your-project-key \
-          -Dsonar.organization=your-org-name \
+          -Dsonar.projectKey=https://sonarcloud.io/project/configuration?id=kryotech-123_kanban-task-manager-infra \
+          -Dsonar.organization=kryotech-123 \
           -Dsonar.host.url=https://sonarcloud.io  # Or your self-hosted SonarQube URL
