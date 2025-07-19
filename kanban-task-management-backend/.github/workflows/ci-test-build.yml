@@ -1,0 +1,30 @@
+name: Test and build application
+
+on:
+  pull_request:
+    branches: [dev]
+
+  workflow_dispatch:
+
+env:
+  JAVA_VERSION: "21"
+
+jobs:
+  test:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java environment
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: "temurin"
+
+      - name: Test package
+        run: mvn clean test
+
+      - name: Build & test
+        run: mvn clean package
