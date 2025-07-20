@@ -1,76 +1,41 @@
-name: Static Analysis with SonarCloud and SonarQube
+name: CI/CD with SonarQube Analysis
 
 on:
   push:
-    branches: [dev]
-    paths:
-      - 'backend/**'
+    branches: [ dev ]
   pull_request:
-    branches: [dev]
-  workflow_dispatch:
+    branches: [ dev ]
 
 jobs:
-
-  sonarcloud:
-    name: SonarCloud Analysis
+  build-and-scan:
     runs-on: ubuntu-latest
-
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Needed for SonarQube to get full git history
 
-      - name: Set up Java
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '21'
+        distribution: 'temurin'
 
-      - name: Cache Sonar packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
+    - name: Inject SonarQube properties
+      run: |
+        cd kanban-task-management-backend
+        sed -i '/<\/project>/i \
+            <sonar.organization>kryotech-123<\/sonar.organization>\
+            <sonar.host.url>https:\/\/sonarcloud.io<\/sonar.host.url>' pom.xml
+        
+        # Optional: Verify the changes
+        cat pom.xml | grep -A2 "sonar.organization"
 
-      - name: Cache Maven packages
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.m2/repository
-            !~/.m2/repository/org/sonarsource
-          key: ${{ runner.os }}-maven
-
-      - name: Run SonarCloud Scan
-        run: mvn clean verify sonar:sonar \
-          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
-
-  sonarqube:
-    name: Local SonarQube Analysis (For Developers)
-    if: github.event_name == 'workflow_dispatch' # Only runs manually
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          java-version: 17
-          distribution: 'temurin'
-
-      - name: Install Sonar Scanner CLI
-        run: |
-          wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
-          unzip sonar-scanner-cli-5.0.1.3006-linux.zip
-          sudo mv sonar-scanner-5.0.1.3006-linux /opt/sonar-scanner
-          sudo ln -s /opt/sonar-scanner/bin/sonar-scanner /usr/local/bin/sonar-scanner
-
-      - name: Run SonarQube Analysis (Local)
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          sonar-scanner \
-            -Dsonar.projectKey=kanban-task-manager \
-            -Dsonar.sources=backend \
-            -Dsonar.host.url=https://b0b363f4f9f4.ngrok-free.app \
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+    - name: SonarQube Scan
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed for PR decoration
+      run: |
+        cd kanban-task-management-backend
+        mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kryotech-123_kanban-task-manager-infra

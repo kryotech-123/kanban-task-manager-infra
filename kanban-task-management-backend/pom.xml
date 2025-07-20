@@ -29,8 +29,7 @@
     <properties>
     
         <java.version>21</java.version>
-    <sonar.organization>kryotech-123</sonar.organization>
-    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+
     </properties>
     <dependencies>
 
