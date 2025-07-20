@@ -26,27 +26,48 @@ jobs:
     - name: Configure SonarQube Properties
       working-directory: ./kanban-task-management-backend
       run: |
-        # Create a temporary file with the profile content
-        cat << 'EOF' > sonar-profile.xml
-        <profiles>
-            <profile>
-                <id>sonar</id>
-                <properties>
-                    <sonar.host.url>${{ secrets.SONAR_HOST_URL }}</sonar.host.url>
-                    <sonar.projectKey>kanban-task-manager-infra</sonar.projectKey>
-                    <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
-                    <sonar.qualitygate.timeout>600</sonar.qualitygate.timeout>
-                </properties>
-            </profile>
-        </profiles>
-        EOF
-
-        # Insert the profile only if not already present
-        if ! grep -q "<sonar.qualitygate.wait>" pom.xml; then
-          # Use awk to safely insert before </project>
-          awk -v profile="$(cat sonar-profile.xml)" '1; /<\/project>/ {print profile}' pom.xml > pom.xml.tmp
-          mv pom.xml.tmp pom.xml
+        # Backup the original pom.xml
+        cp pom.xml pom.xml.bak
+        
+        # Use xmlstarlet for safe XML modification (install if needed)
+        if ! command -v xmlstarlet &> /dev/null; then
+          sudo apt-get update && sudo apt-get install -y xmlstarlet
         fi
+        
+        # Check if the profile already exists
+        if ! xmlstarlet sel -t -v "/project/profiles/profile/id" pom.xml | grep -q "sonar"; then
+          # Create temporary file with the profile
+          cat << 'EOF' > sonar-profile.xml
+          <profile>
+            <id>sonar</id>
+            <properties>
+              <sonar.host.url>${{ secrets.SONAR_URL }}</sonar.host.url>
+              <sonar.projectKey>kanban-task-manager-infra</sonar.projectKey>
+              <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
+              <sonar.qualitygate.timeout>600</sonar.qualitygate.timeout>
+            </properties>
+          </profile>
+          EOF
+          
+          # Insert the profile using xmlstarlet
+          xmlstarlet ed -L \
+            -s "/project" -t elem -n "profiles" -v "" \
+            -i "/project/profiles" -t elem -n "profile" -v "" \
+            -s "/project/profiles/profile" -t elem -n "id" -v "sonar" \
+            -s "/project/profiles/profile" -t elem -n "properties" -v "" \
+            -s "/project/profiles/profile/properties" -t elem -n "sonar.host.url" -v "${{ secrets.SONAR_URL }}" \
+            -s "/project/profiles/profile/properties" -t elem -n "sonar.projectKey" -v "kanban-task-manager-infra" \
+            -s "/project/profiles/profile/properties" -t elem -n "sonar.qualitygate.wait" -v "true" \
+            -s "/project/profiles/profile/properties" -t elem -n "sonar.qualitygate.timeout" -v "600" \
+            pom.xml
+          
+          # Verify the XML is still valid
+          xmlstarlet val pom.xml
+        fi
+        
+        # Show the added profile for debugging
+        echo "Modified pom.xml profile section:"
+        xmlstarlet sel -t -c "/project/profiles" pom.xml
 
     - name: Build and Run SonarQube Analysis
       working-directory: ./kanban-task-management-backend
