@@ -52,8 +52,11 @@ jobs:
       working-directory: ./kanban-task-management-backend
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: ${{ secrets.SONAR_HOST }} 
       run: |
         mvn -B clean verify sonar:sonar \
           -Psonar \
           -Dsonar.login=$SONAR_TOKEN \
+          -Dsonar.host.url=$SONAR_HOST_URL \
+          -Dsonar.qualitygate.wait=true \
           -Dsonar.verbose=true
