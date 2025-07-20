@@ -25,6 +25,7 @@ jobs:
     - name: Add SonarQube properties
       run: |
         # Backup the original pom.xml
+        cd kanban-task-management-backend
         cp pom.xml pom.xml.bak
         
         # Add SonarQube properties in a profile
