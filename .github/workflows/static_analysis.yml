@@ -41,7 +41,7 @@ jobs:
           <profile>
             <id>sonar</id>
             <properties>
-              <sonar.host.url>${{ secrets.SONAR_URL }}</sonar.host.url>
+              <sonar.host.url>${{ secrets.SONAR_HOST }}</sonar.host.url>
               <sonar.projectKey>kanban-task-manager-infra</sonar.projectKey>
               <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
               <sonar.qualitygate.timeout>600</sonar.qualitygate.timeout>
@@ -55,7 +55,7 @@ jobs:
             -i "/project/profiles" -t elem -n "profile" -v "" \
             -s "/project/profiles/profile" -t elem -n "id" -v "sonar" \
             -s "/project/profiles/profile" -t elem -n "properties" -v "" \
-            -s "/project/profiles/profile/properties" -t elem -n "sonar.host.url" -v "${{ secrets.SONAR_URL }}" \
+            -s "/project/profiles/profile/properties" -t elem -n "sonar.host.url" -v "${{ secrets.SONAR_HOST }}" \
             -s "/project/profiles/profile/properties" -t elem -n "sonar.projectKey" -v "kanban-task-manager-infra" \
             -s "/project/profiles/profile/properties" -t elem -n "sonar.qualitygate.wait" -v "true" \
             -s "/project/profiles/profile/properties" -t elem -n "sonar.qualitygate.timeout" -v "600" \
