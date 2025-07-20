@@ -26,20 +26,26 @@ jobs:
     - name: Configure SonarQube Properties
       working-directory: ./kanban-task-management-backend
       run: |
-        # Add Quality Gate profile if not exists
+        # Create a temporary file with the profile content
+        cat << 'EOF' > sonar-profile.xml
+        <profiles>
+            <profile>
+                <id>sonar</id>
+                <properties>
+                    <sonar.host.url>${{ secrets.SONAR_HOST_URL }}</sonar.host.url>
+                    <sonar.projectKey>kanban-task-manager-infra</sonar.projectKey>
+                    <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
+                    <sonar.qualitygate.timeout>600</sonar.qualitygate.timeout>
+                </properties>
+            </profile>
+        </profiles>
+        EOF
+
+        # Insert the profile only if not already present
         if ! grep -q "<sonar.qualitygate.wait>" pom.xml; then
-          sed -i '/<\/project>/i \
-              <profiles>\
-                  <profile>\
-                      <id>sonar<\/id>\
-                      <properties>\
-                          <sonar.host.url>${{ secrets.SONAR_HOST_URL }}<\/sonar.host.url>\
-                          <sonar.projectKey>kanban-task-manager-infra<\/sonar.projectKey>\
-                          <sonar.qualitygate.wait>true<\/sonar.qualitygate.wait>\
-                          <sonar.qualitygate.timeout>600<\/sonar.qualitygate.timeout>\
-                      <\/properties>\
-                  <\/profile>\
-              <\/profiles>' pom.xml
+          # Use awk to safely insert before </project>
+          awk -v profile="$(cat sonar-profile.xml)" '1; /<\/project>/ {print profile}' pom.xml > pom.xml.tmp
+          mv pom.xml.tmp pom.xml
         fi
 
     - name: Build and Run SonarQube Analysis
