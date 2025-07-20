@@ -49,13 +49,9 @@ jobs:
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: |
-        # Run with debug if needed (remove after troubleshooting)
-        mvn -B clean verify \
-          -Psonar \
-          -Dsonar.login=$SONAR_TOKEN \
-          -Dsonar.verbose=true
+        mvn -B clean verify sonar:sonar \
+        -Psonar \
+        -Dsonar.login=$SONAR_TOKEN \
+        -Dsonar.verbose=true
 
-        # Alternative if the above fails:
-        # mvn -B clean verify sonar:sonar \
-        #   -Dsonar.login=$SONAR_TOKEN \
-        #   -Dsonar.verbose=true
+    
