@@ -16,19 +16,20 @@ jobs:
       with:
         fetch-depth: 0  # Needed for SonarQube to get full git history
 
-    - name: Set up JDK 17
+    - name: Set up JDK
       uses: actions/setup-java@v3
       with:
         java-version: '21'
         distribution: 'temurin'
+        cache: 'maven'
 
     - name: Add SonarQube properties
+      working-directory: ./kanban-task-management-backend
       run: |
         # Backup the original pom.xml
-        cd kanban-task-management-backend
         cp pom.xml pom.xml.bak
         
-        # Add SonarQube properties in a profile
+        # Add SonarQube properties in a profile if not already present
         if ! grep -q "<sonar.host.url>" pom.xml; then
           sed -i '/<\/project>/i \
               <profiles>\
@@ -37,18 +38,24 @@ jobs:
                       <properties>\
                           <sonar.organization>kryotech-123<\/sonar.organization>\
                           <sonar.host.url>https:\/\/sonarcloud.io<\/sonar.host.url>\
+                          <sonar.projectKey>kryotech-123_kanban-task-manager-infra<\/sonar.projectKey>\
                       <\/properties>\
                   <\/profile>\
               <\/profiles>' pom.xml
         fi
-        
-        # Verify the changes
-        cat pom.xml | grep -A5 "sonar.organization"
 
-    - name: SonarQube Scan
+    - name: Build and SonarQube Scan
+      working-directory: ./kanban-task-management-backend
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed for PR decoration
       run: |
-        cd kanban-task-management-backend
-        mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kryotech-123_kanban-task-manager-infra
+        # Run with debug if needed (remove after troubleshooting)
+        mvn -B clean verify \
+          -Psonar \
+          -Dsonar.login=$SONAR_TOKEN \
+          -Dsonar.verbose=true
+
+        # Alternative if the above fails:
+        # mvn -B clean verify sonar:sonar \
+        #   -Dsonar.login=$SONAR_TOKEN \
+        #   -Dsonar.verbose=true
