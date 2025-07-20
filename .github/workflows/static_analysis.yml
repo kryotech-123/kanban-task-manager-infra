@@ -1,4 +1,4 @@
-name: CI/CD with SonarQube Analysis
+name: CI/CD with SonarQube Quality Gate
 
 on:
   push:
@@ -14,44 +14,45 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0  # Needed for SonarQube to get full git history
+        fetch-depth: 0  # Required for SonarQube analysis
 
-    - name: Set up JDK
+    - name: Set up JDK 21
       uses: actions/setup-java@v3
       with:
         java-version: '21'
         distribution: 'temurin'
         cache: 'maven'
 
-    - name: Add SonarQube properties
+    - name: Configure SonarQube Properties
       working-directory: ./kanban-task-management-backend
       run: |
-        # Backup the original pom.xml
-        cp pom.xml pom.xml.bak
-        
-        # Add SonarQube properties in a profile if not already present
-        if ! grep -q "<sonar.host.url>" pom.xml; then
+        # Add Quality Gate profile if not exists
+        if ! grep -q "<sonar.qualitygate.wait>" pom.xml; then
           sed -i '/<\/project>/i \
               <profiles>\
                   <profile>\
                       <id>sonar<\/id>\
                       <properties>\
-                          <sonar.organization>kryotech-123<\/sonar.organization>\
-                          <sonar.host.url>https:\/\/sonarcloud.io<\/sonar.host.url>\
-                          <sonar.projectKey>kryotech-123_kanban-task-manager-infra<\/sonar.projectKey>\
+                          <sonar.host.url>${{ secrets.SONAR_HOST_URL }}<\/sonar.host.url>\
+                          <sonar.projectKey>kanban-task-manager-infra<\/sonar.projectKey>\
+                          <sonar.qualitygate.wait>true<\/sonar.qualitygate.wait>\
+                          <sonar.qualitygate.timeout>600<\/sonar.qualitygate.timeout>\
                       <\/properties>\
                   <\/profile>\
               <\/profiles>' pom.xml
         fi
 
-    - name: Build and SonarQube Scan
+    - name: Build and Run SonarQube Analysis
       working-directory: ./kanban-task-management-backend
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: |
+        # Build and run analysis with Quality Gate check
         mvn -B clean verify sonar:sonar \
-        -Psonar \
-        -Dsonar.login=$SONAR_TOKEN \
-        -Dsonar.verbose=true
+          -Psonar \
+          -Dsonar.login=$SONAR_TOKEN \
+          -Dsonar.verbose=true
 
-    
+        # Alternative if you want to see Quality Gate details
+        echo "Quality Gate results available at:"
+        grep "dashboard url" target/sonar/report-task.txt | cut -d' ' -f3
