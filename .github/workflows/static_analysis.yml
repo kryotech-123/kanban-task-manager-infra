@@ -22,15 +22,27 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
 
-    - name: Inject SonarQube properties
+    - name: Add SonarQube properties
       run: |
-        cd kanban-task-management-backend
-        sed -i '/<\/project>/i \
-            <sonar.organization>kryotech-123<\/sonar.organization>\
-            <sonar.host.url>https:\/\/sonarcloud.io<\/sonar.host.url>' pom.xml
+        # Backup the original pom.xml
+        cp pom.xml pom.xml.bak
         
-        # Optional: Verify the changes
-        cat pom.xml | grep -A2 "sonar.organization"
+        # Add SonarQube properties in a profile
+        if ! grep -q "<sonar.host.url>" pom.xml; then
+          sed -i '/<\/project>/i \
+              <profiles>\
+                  <profile>\
+                      <id>sonar<\/id>\
+                      <properties>\
+                          <sonar.organization>kryotech-123<\/sonar.organization>\
+                          <sonar.host.url>https:\/\/sonarcloud.io<\/sonar.host.url>\
+                      <\/properties>\
+                  <\/profile>\
+              <\/profiles>' pom.xml
+        fi
+        
+        # Verify the changes
+        cat pom.xml | grep -A5 "sonar.organization"
 
     - name: SonarQube Scan
       env:
