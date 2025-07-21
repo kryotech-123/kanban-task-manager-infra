@@ -13,4 +13,7 @@ override.tf.json
 
 *.tfvars
 # Ignore plan files
-*.tfplan
+*.tfplan.scannerwork/
+sonar-project.properties
+
+*sonar

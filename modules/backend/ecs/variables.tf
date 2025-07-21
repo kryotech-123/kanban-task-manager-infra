@@ -91,14 +91,14 @@ variable "region" {
 
 
 variable "mongo_user" {
-  default = "kanban_mongo_user"
+  description = "MongoDB username for the ECS tasks"
+  type        = string
 }
 
 variable "mongo_pass" {
   description = "Master password for MongoDB"
   type        = string  
   sensitive = true
-    default = ""
 
 }
 
@@ -106,14 +106,12 @@ variable "mongo_pass" {
 variable "mongo_host" {
   description = "MongoDB host for the ECS tasks"
   type        = string
-  default = ""
   
 }
 
 variable "mongo_name" {
   description = "MongoDB name for the ECS tasks"
   type        = string
-    default = ""
 
   
 }
