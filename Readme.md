@@ -20,6 +20,7 @@ This project uses Terraform to define and manage infrastructure as code (IaC) fo
 The repository is organized as follows:
 
 ```
+.
 ├── environments
 │   ├── dev
 │   │   ├── main.tf
@@ -31,66 +32,33 @@ The repository is organized as follows:
 │   │   ├── outputs.tf
 │   │   ├── terraform.tfvars
 │   │   └── variables.tf
-│   ├── staging
-│   │   ├── main.tf
-│   │   ├── outputs.tf
-│   │   ├── terraform.tfvars
-│   │   └── variables.tf
+│   └── staging
+├── media
+│   └── architecture.png
 ├── modules
 │   ├── backend
 │   │   ├── api_gateway
-│   │   │   ├── main.tf
-│   │   │   ├── outputs.tf
-│   │   │   └── variables.tf
 │   │   ├── database
-│   │   │   ├── main.tf
-│   │   │   ├── outputs.tf
-│   │   │   └── variables.tf
 │   │   ├── ecr
-│   │   │   ├── main.tf
-│   │   │   ├── outputs.tf
-│   │   │   └── variables.tf
 │   │   ├── ecs
-│   │   │   ├── main.tf
-│   │   │   ├── outputs.tf
-│   │   │   └── variables.tf
 │   │   ├── networking
-│   │   │   ├── main.tf
-│   │   │   ├── outputs.tf
-│   │   │   ├── Readme.md
-│   │   │   └── variables.tf
 │   │   └── waf
-│   │       ├── main.tf
-│   │       ├── outputs.tf
-│   │       ├── Readme.md
-│   │       └── variables.tf
 │   ├── frontend
 │   │   ├── cloudfront
-│   │   │   ├── main.tf
-│   │   │   ├── outputs.tf
-│   │   │   └── variables.tf
 │   │   ├── random_id
-│   │   │   └── main.tf
+│   │   ├── Readme.md
 │   │   ├── s3
-│   │   │   ├── main.tf
-│   │   │   ├── outputs.tf
-│   │   │   └── variables.tf
-│   │   ├── waf
-│   │       ├── main.tf
-│   │       ├── outputs.tf
-│   │       └── variables.tf
-│   │   └── Readme.md
+│   │   └── waf
 │   ├── monitoring
 │   │   ├── alarms.tf
 │   │   ├── dashboard.tf
 │   │   ├── iam.tf
-│   │   ├── logging.tf
 │   │   ├── outputs.tf
-│   │   ├── Readme.tf
 │   │   └── variables.tf
 │   └── README.md
 ├── Readme.md
 └── Runner.md
+
 ```
 
 - **environments/**: Contains environment-specific configurations (`dev`, `staging`, `prod`).
