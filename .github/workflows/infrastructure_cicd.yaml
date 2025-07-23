@@ -1,0 +1,63 @@
+name: Apply Infrastructure to Prod/Dev environmets
+
+on:
+  push:
+    branches: ["prod", "dev"]
+  pull_request:
+    branches: ["prod", "dev"]
+
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: "eu-west-1"
+  TERRAFORM_ROLE: ${{ secrets.TERRAFORM_ROLE }}
+  TF_DIR: environments/${{ github.ref_name }}
+
+jobs:
+  Validate:
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref_name }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.TERRAFORM_ROLE }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Initialize
+        run: terraform init
+        working-directory: ${{ env.TF_DIR }}
+
+      - name: Validate terraform
+        run: terraform validate
+        working-directory: ${{ env.TF_DIR }}
+
+      - name: Terraform Plan
+        env:
+          TF_VAR_kms_key_arn: ${{ secrets.TF_VAR_kms_key_arn }}
+          TF_VAR_ecr_repository: ${{ secrets.TF_VAR_ecr_repository }}
+          TF_VAR_db_password: ${{ secrets.TF_VAR_db_password }}
+          TF_VAR_mongo_pass: ${{ secrets.TF_VAR_mongo_pass }}
+          TF_VAR_mongo_host: ${{ secrets.TF_VAR_mongo_host }}
+          TF_VAR_mongo_name: ${{ secrets.TF_VAR_mongo_name }}
+          TF_VAR_jwt_secret: ${{ secrets.TF_VAR_jwt_secret }}
+          TF_VAR_email_username: ${{ secrets.TF_VAR_email_username }}
+          TF_VAR_email_password: ${{ secrets.TF_VAR_email_password }}
+          TF_VAR_sender_email: ${{ secrets.TF_VAR_sender_email }}
+        run: terraform plan -out=tfplan
+        working-directory: ${{ env.TF_DIR }}
+#      - name: Terraform Apply (main only)
+#        if: github.ref_name == 'main'
+#        run: terraform apply -auto-approve tfplan
+#        working-directory: ${{ env.TF_DIR }}
