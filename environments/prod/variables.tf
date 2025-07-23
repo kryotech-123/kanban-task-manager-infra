@@ -1,38 +1,49 @@
 # ================================= Frontend Bucket ===================================
 variable "bucket_name" {
   description = "Name of frontend s3 bucket"
+  default     = "kanban-task-manager-prod"
+  type        = string
 }
-
 
 
 # ========================= NETWORKING VARIABLES =================================
 variable "vpc_azs" {
   type        = list(string)
   description = "The availability zones in which resources will be deployed"
+  default     = ["eu-west-1a", "eu-west-1b"]
 }
+
 variable "vpc_cidr" {
   type        = string
   description = "The network cidr of the vpc"
+  default     = "10.0.0.0/16"
 }
 
 variable "private_subnets" {
   type        = list(string)
   description = "Cidr definition for private subnets"
+  default     = ["10.0.1.0/24", "10.0.2.0/24"]
 }
+
+
 variable "public_subnets" {
   type        = list(string)
   description = "Cidr definition for public subnets"
+  default     = ["10.0.101.0/24", "10.0.102.0/24"]
 }
+
+
 variable "database_subnets" {
   type        = list(string)
   description = "Cidr defininition for database subnets"
+  default     = ["10.0.201.0/24", "10.0.202.0/24"]
 }
-
 
 # =============================================== API GATEWAY =========================================================
 variable "stage_name" {
   description = "Stage name for the API Gateway"
   type        = string
+  default     = "prod"
 }
 
 # ================================ KMS KEY =========================================================
@@ -50,18 +61,16 @@ variable "ecr_repository" {
 }
 
 
-
-
-
 # ================================================== DATABASE =========================================================
 variable "db_name" {
   description = "Name of the database"
   type        = string
+  default     = "postgres"
 }
 variable "db_user" {
   description = "Master username for the database"
   type        = string
-  default     = "postgres"
+  default     = "kanban_user"
 }
 variable "db_password" {
   description = "Master password for the database"
@@ -73,23 +82,33 @@ variable "db_password" {
 # ============================================ General config ========================================
 variable "application_name" {
   description = "name of application"
+  type        = string
+  default     = "kanban-task-manager-prod"
 }
 
 
 variable "tags" {
-  description = "Prod environment tags"
+  description = "Dev environment tags"
+  default = {
+    Environment        = "prod"
+    Owner              = "prod-team@kanban-taskmanager.com"
+    CostCenter         = "12345"
+    AutoShutdown       = "true"
+    TicketReference    = "prod-1234"
+    DataClassification = "internal"
+  }
 }
 
 variable "environment" {
   description = "Environment name"
+  default     = "prod"
 }
+
 variable "region" {
   description = "AWS region for the resources"
   type        = string
+  default     = "eu-west-1"
 }
-
-
-
 
 
 # ================================== ECS Variables =========================================================
@@ -97,6 +116,7 @@ variable "region" {
 
 variable "mongo_user" {
   default = "kanban_mongo_user"
+  type    = string
 }
 
 variable "mongo_pass" {
@@ -126,11 +146,13 @@ variable "jwt_secret" {
 
 variable "jwt_expire" {
   description = "JWT access token expiration time in seconds"
+  default     = "15000000"
   type        = string
 }
 
 variable "jwt_refresh" {
   description = "JWT refresh token expiration time in seconds"
+  default     = "700000000"
   type        = string
 
 }
@@ -139,16 +161,20 @@ variable "jwt_refresh" {
 variable "email_host" {
   description = "Email host for sending notifications"
   type        = string
-
+  default     = "smtp.gmail.com"
 }
+
 variable "email_port" {
   description = "Email port for sending notifications"
-  type        = string
+  type        = number
+  default     = 587
 }
+
 variable "email_username" {
   description = "Email username for sending notifications"
   type        = string
 }
+
 variable "email_password" {
   description = "Email password for sending notifications"
   type        = string
@@ -157,11 +183,12 @@ variable "email_password" {
 
 variable "email_ssl_trust" {
   description = "email ssl trust for sending notifications"
+  default     = "smtp.gmail.com"
   type        = string
 }
 
 variable "sender_email" {
   description = "Sender email address for notifications"
   type        = string
-
 }
+
