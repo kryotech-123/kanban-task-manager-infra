@@ -103,12 +103,5 @@ terraform apply -var-file=terraform.tfvars
 3. **Monitoring** (CloudWatch alarms for WAF/CloudFront)  
 
 ---
+ 
 
-### **📌 Notes**  
-- **Unique Bucket Names:** Random ID ensures no conflicts.  
-- **Dev vs. Prod:** Adjust `terraform.tfvars` per environment.  
-- **Troubleshooting:**  
-  - `terraform force-unlock` if DynamoDB locks fail.  
-  - Check IAM permissions if AWS API errors occur.  
-
-**✅ Frontend infrastructure is now ready!** 🎉 Proceed with backend setup.
